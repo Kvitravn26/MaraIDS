@@ -37,9 +37,7 @@ export default function Header() {
           <a href="#about" className="hover:text-white transition-colors">
             {lang === "UA" ? "Про студію" : "About"}
           </a>
-          <a href="#calculator" className="hover:text-white transition-colors">
-            {lang === "UA" ? "Калькулятор" : "Calculator"}
-          </a>
+         
           <a href="#contact" className="hover:text-white transition-colors">
             {lang === "UA" ? "Контакти" : "Contact"}
           </a>
