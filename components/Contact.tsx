@@ -201,7 +201,7 @@ export default function Contact() {
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="w-full bg-black/50 border border-white/10 px-4 py-3 text-xs text-white focus:border-white focus:outline-none transition-colors"
-                    placeholder={lang === "UA" ? "Роман Кусік" : "Roman Kusik"}
+                    placeholder={lang === "UA" ? "Ім'я Прізвище" : "Your name"}
                   />
                 </div>
 
