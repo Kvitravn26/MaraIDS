@@ -1,23 +1,21 @@
+import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import Projects from "@/components/Projects";
 import Services from "@/components/Services";
-import About from "@/components/About";
+import About from "@/components/About"; // <-- Імпорт
 import Calculator from "@/components/Calculator";
-import Workflow from "@/components/Workflow";
 import Contact from "@/components/Contact";
-import Footer from "@/components/Footer";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-[#0a0a0b] text-white">
+    <main className="bg-[#0a0a0c] min-h-screen text-white">
+      <Header />
       <Hero />
       <Projects />
       <Services />
-      <About />
+      <About /> {/* <-- Рендеринг блоку */}
       <Calculator />
-      <Workflow />
       <Contact />
-      <Footer />
     </main>
   );
 }
