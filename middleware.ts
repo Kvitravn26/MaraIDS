@@ -27,16 +27,39 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Важливо: викликаємо getUser, щоб оновити сессию
+  // Отримуємо поточного користувача
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Захищаємо всі маршрути, що починаються з /admin
-  if (request.nextUrl.pathname.startsWith("/admin") && !user) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    return NextResponse.redirect(url);
+  const url = request.nextUrl;
+  const pathname = url.pathname;
+
+  // 1. Якщо користувач не заавторизований і намагається зайти в захищені розділи
+  if (!user && (pathname.startsWith("/admin") || pathname.startsWith("/designer") || pathname.startsWith("/client"))) {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  // 2. Перевірка ролей для захисту кабінетів від чужих очей
+  if (user) {
+    // Отримуємо профіль користувача з роллю
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    const role = profile?.role || "client";
+
+    // Захист маршрутів адміна
+    if (pathname.startsWith("/admin") && role !== "admin") {
+      return NextResponse.redirect(new URL(`/${role}`, request.url));
+    }
+
+    // Захист маршрутів дизайнера
+    if (pathname.startsWith("/designer") && role !== "designer" && role !== "admin") {
+      return NextResponse.redirect(new URL(`/${role}`, request.url));
+    }
   }
 
   return supabaseResponse;
@@ -45,7 +68,11 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     /*
-     * Матчимо всі роути окрім статики, картинок тощо
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public folder
      */
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],

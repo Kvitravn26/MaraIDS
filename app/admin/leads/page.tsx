@@ -2,137 +2,93 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
-type Lead = {
-  id: string;
-  created_at: string;
-  full_name: string;
-  email: string;
-  phone: string;
-  service_type: string;
-  status: string;
-  budget?: string;
-};
-
-export default function AdminLeadsPage() {
-  const [leads, setLeads] = useState<Lead[]>([]);
+export default function DashboardPage() {
+  const router = useRouter();
+  const [userName, setUserName] = useState("Користувач");
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [lang, setLang] = useState<"ua" | "en">("ua");
+
+  const checkLang = () => {
+    const saved = localStorage.getItem("lang") || localStorage.getItem("locale");
+    if (saved) {
+      setLang(saved.toLowerCase().includes("en") ? "en" : "ua");
+    }
+  };
 
   useEffect(() => {
-    fetchLeads();
-  }, []);
+    checkLang();
 
-  const fetchLeads = async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from("leads")
-        .select("*")
-        .order("created_at", { ascending: false });
+    // Слухаємо кастомну подію або клік по кнопках шапки
+    const handleLangChange = () => checkLang();
+    window.addEventListener("languageChange", handleLangChange);
+    window.addEventListener("storage", handleLangChange);
 
-      if (error) throw error;
-      setLeads(data || []);
-    } catch (err: any) {
-      setError(err.message || "Помилка завантаження лідів");
-    } finally {
-      setLoading(false);
-    }
-  };
+    // Додатково слухаємо кліки по сторінці (на випадок перемикання в шапці)
+    const handleGlobalClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target && target.innerText) {
+        const text = target.innerText.trim().toUpperCase();
+        if (text === "EN") {
+          localStorage.setItem("lang", "en");
+          setLang("en");
+        } else if (text === "UA") {
+          localStorage.setItem("lang", "ua");
+          setLang("ua");
+        }
+      }
+    };
 
-  const updateLeadStatus = async (id: string, newStatus: string) => {
-    try {
-      const { error } = await supabase
-        .from("leads")
-        .update({ status: newStatus })
-        .eq("id", id);
+    document.addEventListener("click", handleGlobalClick);
 
-      if (error) throw error;
-      setLeads(leads.map(l => l.id === id ? { ...l, status: newStatus } : l));
-    } catch (err: any) {
-      alert("Помилка оновлення статусу: " + err.message);
-    }
-  };
+    // Отримання профілю
+    const fetchProfile = async () => {
+      try {
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        
+        if (authError || !user) {
+          router.push("/login");
+          return;
+        }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#070708] text-white flex items-center justify-center font-mono text-sm">
-        Завантаження лідів...
-      </div>
-    );
-  }
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("id", user.id)
+          .single();
+
+        if (profile?.full_name) {
+          setUserName(profile.full_name);
+        }
+      } catch (err) {
+        console.error("Помилка завантаження профілю:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+
+    return () => {
+      window.removeEventListener("languageChange", handleLangChange);
+      window.removeEventListener("storage", handleLangChange);
+      document.removeEventListener("click", handleGlobalClick);
+    };
+  }, [router]);
 
   return (
-    <main className="min-h-screen bg-[#070708] text-white p-8 font-mono">
-      <div className="max-w-6xl mx-auto space-y-6">
-        <div className="flex justify-between items-center border-b border-white/10 pb-4">
-          <div>
-            <h1 className="text-xl font-bold tracking-tight">Управління лідами</h1>
-            <p className="text-xs text-zinc-400">Mara Design Studio — Адмін-панель</p>
-          </div>
-          <Link
-            href="/admin/projects"
-            className="text-xs bg-zinc-800 border border-zinc-700 px-3 py-2 rounded hover:bg-zinc-700 transition"
-          >
-            Перейти до проєктів →
-          </Link>
-        </div>
-
-        {error && <p className="text-red-400 text-xs">{error}</p>}
-
-        <div className="bg-zinc-900 border border-white/10 rounded-xl overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-zinc-800/50 text-zinc-400 border-b border-white/10">
-                <tr>
-                  <th className="p-4">Дата</th>
-                  <th className="p-4">Клієнт</th>
-                  <th className="p-4">Контакти</th>
-                  <th className="p-4">Послуга</th>
-                  <th className="p-4">Бюджет</th>
-                  <th className="p-4">Статус</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5">
-                {leads.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="p-6 text-center text-zinc-500">
-                      Жодного ліда поки немає.
-                    </td>
-                  </tr>
-                ) : (
-                  leads.map((lead) => (
-                    <tr key={lead.id} className="hover:bg-zinc-800/30 transition">
-                      <td className="p-4 text-zinc-400">
-                        {new Date(lead.created_at).toLocaleDateString("uk-UA")}
-                      </td>
-                      <td className="p-4 font-medium">{lead.full_name}</td>
-                      <td className="p-4 text-zinc-400">
-                        <div>{lead.email}</div>
-                        <div>{lead.phone}</div>
-                      </td>
-                      <td className="p-4 text-zinc-300">{lead.service_type}</td>
-                      <td className="p-4 text-zinc-400">{lead.budget || "—"}</td>
-                      <td className="p-4">
-                        <select
-                          value={lead.status}
-                          onChange={(e) => updateLeadStatus(lead.id, e.target.value)}
-                          className="bg-zinc-800 border border-zinc-700 rounded p-1.5 text-xs text-white focus:outline-none focus:border-white/40"
-                        >
-                          <option value="new">New (Новий)</option>
-                          <option value="contacted">Contacted (Зв'язалися)</option>
-                          <option value="in_progress">In Progress (В роботі)</option>
-                          <option value="converted">Converted (Конвертовано)</option>
-                          <option value="archived">Archived (Архів)</option>
-                        </select>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+    <main className="min-h-screen bg-[#070708] text-white pt-32 px-6 font-mono">
+      <div className="max-w-4xl mx-auto space-y-6">
+        <div className="bg-zinc-900 border border-white/10 p-8 rounded-xl space-y-2">
+          <h1 className="text-xl font-bold tracking-tight">
+            {lang === "en" ? `Welcome, ${loading ? "..." : userName}!` : `Вітаємо, ${loading ? "..." : userName}!`}
+          </h1>
+          <p className="text-xs text-zinc-400">
+            {lang === "en"
+              ? "Here you can view the status of your design project and visualization stages."
+              : "Тут ви зможете переглядати статус вашого дизайн-проєкту та етапи візуалізації."}
+          </p>
         </div>
       </div>
     </main>

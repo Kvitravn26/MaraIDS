@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function LoginPage() {
@@ -18,43 +18,47 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      // 1. Авторизація через Supabase Auth
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (authError) throw authError;
 
-      const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", authData.user.id)
-        .single();
+      if (data.user) {
+        // 2. Отримуємо роль користувача з таблиці profiles
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", data.user.id)
+          .single();
 
-      if (profileError) {
-        console.error("Не вдалося завантажити профіль:", profileError);
-      }
+        if (profileError) throw profileError;
 
-      const role = profile?.role || "client";
+        // 3. Перенаправляємо залежно від ролі
+        if (profile?.role === "admin") {
+          router.push("/admin/leads");
+        } else if (profile?.role === "designer") {
+          router.push("/designer/projects");
+        } else {
+          router.push("/client");
+        }
 
-      if (role === "admin") {
-        window.location.href = "/admin/leads";
-      } else if (role === "designer") {
-        window.location.href = "/designer/projects";
-      } else {
-        window.location.href = "/client";
+        router.refresh();
       }
     } catch (err: any) {
-      setError(err.message || "Помилка входу");
+      setError(err.message || "Помилка при вході. Перевірте email та пароль.");
+    } finally {
       setLoading(false);
     }
   };
 
   return (
     <main className="min-h-screen bg-[#070708] text-white flex items-center justify-center p-6 font-mono">
-      <div className="bg-zinc-900 border border-white/10 p-8 rounded-xl max-w-md w-full space-y-6">
-        <div className="text-center space-y-2">
-          <h1 className="text-xl font-bold tracking-tight">Вхід у систему</h1>
+      <div className="max-w-md w-full bg-zinc-900 border border-white/10 p-8 rounded-xl space-y-6">
+        <div className="space-y-1 text-center">
+          <h1 className="text-xl font-bold tracking-tight">Вхід до кабінету</h1>
           <p className="text-xs text-zinc-400">Mara Design Studio</p>
         </div>
 
@@ -66,8 +70,8 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-sm text-white focus:outline-none focus:border-white/40"
-              placeholder="admin@example.com"
+              className="w-full bg-zinc-800 border border-zinc-700 rounded p-2.5 text-sm text-white focus:outline-none focus:border-white/40"
+              placeholder="romkusik@gmail.com"
             />
           </div>
 
@@ -78,7 +82,7 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-sm text-white focus:outline-none focus:border-white/40"
+              className="w-full bg-zinc-800 border border-zinc-700 rounded p-2.5 text-sm text-white focus:outline-none focus:border-white/40"
               placeholder="••••••••"
             />
           </div>
@@ -88,15 +92,15 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-white text-black font-medium py-2 rounded text-sm hover:bg-zinc-200 transition disabled:opacity-50"
+            className="w-full bg-white text-black font-semibold p-2.5 rounded text-xs hover:bg-zinc-200 transition cursor-pointer disabled:opacity-50"
           >
             {loading ? "Вхід..." : "Увійти"}
           </button>
         </form>
 
-        <div className="text-center text-xs text-zinc-500 pt-2 border-t border-white/10">
-          Немає облікового запису?{" "}
-          <Link href="/register" className="text-white hover:underline">
+        <div className="text-center text-xs text-zinc-400 pt-2 border-t border-white/5">
+          Ще немає акаунта?{" "}
+          <Link href="/register" className="text-white hover:underline font-medium">
             Зареєструватися
           </Link>
         </div>

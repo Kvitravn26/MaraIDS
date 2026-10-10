@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function RegisterPage() {
@@ -20,7 +20,8 @@ export default function RegisterPage() {
     setError(null);
 
     try {
-      const { data, error: authError } = await supabase.auth.signUp({
+      // Реєструємо і передаємо метадані для тригера бази даних
+      const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -31,11 +32,20 @@ export default function RegisterPage() {
         },
       });
 
-      if (authError) throw authError;
+      if (signUpError) throw signUpError;
 
-      window.location.href = "/login";
+      // Перенаправлення відповідно до ролі
+      if (role === "designer") {
+        router.push("/designer/projects");
+      } else if (role === "admin") {
+        router.push("/admin/leads");
+      } else {
+        router.push("/client");
+      }
+
+      router.refresh();
     } catch (err: any) {
-      setError(err.message || "Помилка реєстрації");
+      setError(err.message || "Помилка при реєстрації");
     } finally {
       setLoading(false);
     }
@@ -43,21 +53,21 @@ export default function RegisterPage() {
 
   return (
     <main className="min-h-screen bg-[#070708] text-white flex items-center justify-center p-6 font-mono">
-      <div className="bg-zinc-900 border border-white/10 p-8 rounded-xl max-w-md w-full space-y-6">
-        <div className="text-center space-y-2">
-          <h1 className="text-xl font-bold tracking-tight">Реєстрація акаунта</h1>
+      <div className="max-w-md w-full bg-zinc-900 border border-white/10 p-8 rounded-xl space-y-6">
+        <div className="space-y-1 text-center">
+          <h1 className="text-xl font-bold tracking-tight">Реєстрація</h1>
           <p className="text-xs text-zinc-400">Mara Design Studio</p>
         </div>
 
         <form onSubmit={handleRegister} className="space-y-4">
           <div>
-            <label className="block text-xs text-zinc-400 mb-1">Ім'я та Прізвище</label>
+            <label className="block text-xs text-zinc-400 mb-1">Ваше ім'я</label>
             <input
               type="text"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               required
-              className="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-sm text-white focus:outline-none focus:border-white/40"
+              className="w-full bg-zinc-800 border border-zinc-700 rounded p-2.5 text-sm text-white focus:outline-none focus:border-white/40"
               placeholder="Роман Кусік"
             />
           </div>
@@ -69,8 +79,8 @@ export default function RegisterPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-sm text-white focus:outline-none focus:border-white/40"
-              placeholder="example@gmail.com"
+              className="w-full bg-zinc-800 border border-zinc-700 rounded p-2.5 text-sm text-white focus:outline-none focus:border-white/40"
+              placeholder="romkusik@gmail.com"
             />
           </div>
 
@@ -81,20 +91,21 @@ export default function RegisterPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-sm text-white focus:outline-none focus:border-white/40"
+              className="w-full bg-zinc-800 border border-zinc-700 rounded p-2.5 text-sm text-white focus:outline-none focus:border-white/40"
               placeholder="••••••••"
             />
           </div>
 
           <div>
-            <label className="block text-xs text-zinc-400 mb-1">Роль у системі</label>
+            <label className="block text-xs text-zinc-400 mb-1">Оберіть роль</label>
             <select
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              className="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-sm text-white focus:outline-none focus:border-white/40"
+              className="w-full bg-zinc-800 border border-zinc-700 rounded p-2.5 text-sm text-white focus:outline-none focus:border-white/40 cursor-pointer"
             >
-              <option value="client">Клієнт (Client)</option>
-              <option value="designer">Дизайнер (Designer)</option>
+              <option value="client">Клієнт</option>
+              <option value="designer">Дизайнер</option>
+              <option value="admin">Адміністратор</option>
             </select>
           </div>
 
@@ -103,15 +114,15 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-white text-black font-medium py-2 rounded text-sm hover:bg-zinc-200 transition disabled:opacity-50 cursor-pointer"
+            className="w-full bg-white text-black font-semibold p-2.5 rounded text-xs hover:bg-zinc-200 transition cursor-pointer disabled:opacity-50"
           >
-            {loading ? "Створення акаунта..." : "Зареєструватися"}
+            {loading ? "Створення акаунту..." : "Зареєструватися"}
           </button>
         </form>
 
-        <div className="text-center text-xs text-zinc-500 pt-2 border-t border-white/10">
+        <div className="text-center text-xs text-zinc-400 pt-2 border-t border-white/5">
           Вже є акаунт?{" "}
-          <Link href="/login" className="text-white hover:underline">
+          <Link href="/login" className="text-white hover:underline font-medium">
             Увійти
           </Link>
         </div>
