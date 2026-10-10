@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useApp } from "@/context/AppContext";
+import { COUNTRY_CODES } from "@/lib/countryCodes";
 
 type ServiceType = "viz" | "design" | "full";
 type CurrencyKey = "UAH" | "USD" | "EUR";
@@ -17,80 +18,6 @@ const CURRENCIES: Record<CurrencyKey, { symbol: string; rate: number }> = {
   USD: { symbol: "$", rate: 0.024 },
   EUR: { symbol: "€", rate: 0.022 },
 };
-
-// Повний список країн із перекладами для UA та EN
-const COUNTRY_CODES = [
-  { code: "+380", ua: "Україна (+380)", en: "Ukraine (+380)" },
-  { code: "+48", ua: "Польща (+48)", en: "Poland (+48)" },
-  { code: "+49", ua: "Німеччина (+49)", en: "Germany (+49)" },
-  { code: "+44", ua: "Велика Британія (+44)", en: "United Kingdom (+44)" },
-  { code: "+1", ua: "США / Канада (+1)", en: "USA / Canada (+1)" },
-  { code: "email", ua: "Email / Telegram (текстом)", en: "Email / Telegram (text)" },
-
-  // Скандинавія
-  { code: "+45", ua: "Данія (+45)", en: "Denmark (+45)" },
-  { code: "+358", ua: "Фінляндія (+358)", en: "Finland (+358)" },
-  { code: "+354", ua: "Ісландія (+354)", en: "Iceland (+354)" },
-  { code: "+47", ua: "Норвегія (+47)", en: "Norway (+47)" },
-  { code: "+46", ua: "Швеція (+46)", en: "Sweden (+46)" },
-
-  // Решта Європи
-  { code: "+355", ua: "Албанія (+355)", en: "Albania (+355)" },
-  { code: "+376", ua: "Андорра (+376)", en: "Andorra (+376)" },
-  { code: "+43", ua: "Австрія (+43)", en: "Austria (+43)" },
-  { code: "+375", ua: "Білорусь (+375)", en: "Belarus (+375)" },
-  { code: "+32", ua: "Бельгія (+32)", en: "Belgium (+32)" },
-  { code: "+387", ua: "Боснія і Герцеговина (+387)", en: "Bosnia and Herzegovina (+387)" },
-  { code: "+359", ua: "Болгарія (+359)", en: "Bulgaria (+359)" },
-  { code: "+385", ua: "Хорватія (+385)", en: "Croatia (+385)" },
-  { code: "+357", ua: "Кіпр (+357)", en: "Cyprus (+357)" },
-  { code: "+420", ua: "Чехія (+420)", en: "Czech Republic (+420)" },
-  { code: "+372", ua: "Естонія (+372)", en: "Estonia (+372)" },
-  { code: "+33", ua: "Франція (+33)", en: "France (+33)" },
-  { code: "+995", ua: "Грузія (+995)", en: "Georgia (+995)" },
-  { code: "+30", ua: "Греція (+30)", en: "Greece (+30)" },
-  { code: "+36", ua: "Угорщина (+36)", en: "Hungary (+36)" },
-  { code: "+353", ua: "Ірландія (+353)", en: "Ireland (+353)" },
-  { code: "+39", ua: "Італія (+39)", en: "Italy (+39)" },
-  { code: "+383", ua: "Косово (+383)", en: "Kosovo (+383)" },
-  { code: "+371", ua: "Латвія (+371)", en: "Latvia (+371)" },
-  { code: "+423", ua: "Ліхтенштейн (+423)", en: "Liechtenstein (+423)" },
-  { code: "+370", ua: "Литва (+370)", en: "Lithuania (+370)" },
-  { code: "+352", ua: "Люксембург (+352)", en: "Luxembourg (+352)" },
-  { code: "+356", ua: "Мальта (+356)", en: "Malta (+356)" },
-  { code: "+373", ua: "Молдова (+373)", en: "Moldova (+373)" },
-  { code: "+377", ua: "Монако (+377)", en: "Monaco (+377)" },
-  { code: "+382", ua: "Чорногорія (+382)", en: "Montenegro (+382)" },
-  { code: "+31", ua: "Нідерланди (+31)", en: "Netherlands (+31)" },
-  { code: "+389", ua: "Північна Македонія (+389)", en: "North Macedonia (+389)" },
-  { code: "+351", ua: "Португалія (+351)", en: "Portugal (+351)" },
-  { code: "+40", ua: "Румунія (+40)", en: "Romania (+40)" },
-  { code: "+378", ua: "Сан-Марино (+378)", en: "San Marino (+378)" },
-  { code: "+381", ua: "Сербія (+381)", en: "Serbia (+381)" },
-  { code: "+421", ua: "Словаччина (+421)", en: "Slovakia (+421)" },
-  { code: "+386", ua: "Словенія (+386)", en: "Slovenia (+386)" },
-  { code: "+34", ua: "Іспанія (+34)", en: "Spain (+34)" },
-  { code: "+41", ua: "Швейцарія (+41)", en: "Switzerland (+41)" },
-  { code: "+90", ua: "Туреччина (+90)", en: "Turkey (+90)" },
-  { code: "+379", ua: "Ватикан (+379)", en: "Vatican City (+379)" },
-
-  // Північна Америка
-  { code: "+52", ua: "Мексика (+52)", en: "Mexico (+52)" },
-
-  // Південна Америка
-  { code: "+54", ua: "Аргентина (+54)", en: "Argentina (+54)" },
-  { code: "+591", ua: "Болівія (+591)", en: "Bolivia (+591)" },
-  { code: "+55", ua: "Бразилія (+55)", en: "Brazil (+55)" },
-  { code: "+56", ua: "Чилі (+56)", en: "Chile (+56)" },
-  { code: "+57", ua: "Колумбія (+57)", en: "Colombia (+57)" },
-  { code: "+593", ua: "Еквадор (+593)", en: "Ecuador (+593)" },
-  { code: "+592", ua: "Гаяна (+592)", en: "Guyana (+592)" },
-  { code: "+595", ua: "Парагвай (+595)", en: "Paraguay (+595)" },
-  { code: "+51", ua: "Перу (+51)", en: "Peru (+51)" },
-  { code: "+597", ua: "Суринам (+597)", en: "Suriname (+597)" },
-  { code: "+598", ua: "Уругвай (+598)", en: "Uruguay (+598)" },
-  { code: "+58", ua: "Венесуела (+58)", en: "Venezuela (+58)" },
-];
 
 export default function Calculator() {
   const { lang } = useApp();

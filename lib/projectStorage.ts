@@ -1,0 +1,1 @@
+export const PROJECT_FILES_BUCKET = "project-files";

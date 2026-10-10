@@ -1,57 +1,43 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useApp } from "@/context/AppContext";
 import { supabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
 
-export default function DashboardPage() {
-  const router = useRouter();
-  const [userName, setUserName] = useState("Користувач");
-  const [loading, setLoading] = useState(true);
-  const [lang, setLang] = useState<"ua" | "en">("ua");
+interface Project {
+  id: string;
+  title: string;
+  status: string;
+  area: number;
+  property_type: string;
+  created_at: string;
+}
 
-  const checkLang = () => {
-    const saved = localStorage.getItem("lang") || localStorage.getItem("locale");
-    if (saved) {
-      setLang(saved.toLowerCase().includes("en") ? "en" : "ua");
-    }
-  };
+const PROJECT_STATUS_LABELS: Record<string, { UA: string; EN: string }> = {
+  PENDING_APPROVAL: { UA: "На затвердженні", EN: "Pending approval" },
+  AWAITING_DESIGNER: { UA: "Очікує дизайнера", EN: "Awaiting designer" },
+  IN_PROGRESS: { UA: "В роботі", EN: "In progress" },
+  IN_REVIEW: { UA: "На перевірці", EN: "In review" },
+  COMPLETED: { UA: "Завершено", EN: "Completed" },
+  AWAITING_PAYMENT: { UA: "Очікує оплати", EN: "Awaiting payment" },
+};
+
+export default function ClientDashboard() {
+  const { lang } = useApp();
+  const [userName, setUserName] = useState<string>("");
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    checkLang();
+    const loadClientData = async () => {
+      setLoading(true);
 
-    // Слухаємо кастомну подію або клік по кнопках шапки
-    const handleLangChange = () => checkLang();
-    window.addEventListener("languageChange", handleLangChange);
-    window.addEventListener("storage", handleLangChange);
+      // Отримуємо поточного залогіненого користувача
+      const { data: { user } } = await supabase.auth.getUser();
 
-    // Додатково слухаємо кліки по сторінці (на випадок перемикання в шапці)
-    const handleGlobalClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (target && target.innerText) {
-        const text = target.innerText.trim().toUpperCase();
-        if (text === "EN") {
-          localStorage.setItem("lang", "en");
-          setLang("en");
-        } else if (text === "UA") {
-          localStorage.setItem("lang", "ua");
-          setLang("ua");
-        }
-      }
-    };
-
-    document.addEventListener("click", handleGlobalClick);
-
-    // Отримання профілю
-    const fetchProfile = async () => {
-      try {
-        const { data: { user }, error: authError } = await supabase.auth.getUser();
-        
-        if (authError || !user) {
-          router.push("/login");
-          return;
-        }
-
+      if (user) {
+        // Отримуємо ім'я з профілю
         const { data: profile } = await supabase
           .from("profiles")
           .select("full_name")
@@ -60,37 +46,120 @@ export default function DashboardPage() {
 
         if (profile?.full_name) {
           setUserName(profile.full_name);
+        } else if (user.user_metadata?.full_name) {
+          setUserName(user.user_metadata.full_name);
         }
-      } catch (err) {
-        console.error("Помилка завантаження профілю:", err);
-      } finally {
-        setLoading(false);
+
+        // Отримуємо проєкти цього клієнта з Supabase
+        const { data: projData } = await supabase
+          .from("client_project_requests")
+          .select("*")
+          .eq("client_id", user.id)
+          .order("created_at", { ascending: false });
+
+        if (projData) {
+          setProjects(projData as Project[]);
+        }
       }
+      setLoading(false);
     };
 
-    fetchProfile();
-
-    return () => {
-      window.removeEventListener("languageChange", handleLangChange);
-      window.removeEventListener("storage", handleLangChange);
-      document.removeEventListener("click", handleGlobalClick);
-    };
-  }, [router]);
+    loadClientData();
+  }, []);
 
   return (
-    <main className="min-h-screen bg-[#070708] text-white pt-32 px-6 font-mono">
-      <div className="max-w-4xl mx-auto space-y-6">
-        <div className="bg-zinc-900 border border-white/10 p-8 rounded-xl space-y-2">
-          <h1 className="text-xl font-bold tracking-tight">
-            {lang === "en" ? `Welcome, ${loading ? "..." : userName}!` : `Вітаємо, ${loading ? "..." : userName}!`}
+    <div className="pt-28 pb-20 px-6 max-w-7xl mx-auto text-white space-y-8 font-sans">
+      {/* Шапка кабінету клієнта */}
+      <div className="bg-[#121214] border border-white/10 p-8 rounded-3xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+        <div>
+          <span className="text-xs font-mono uppercase text-zinc-500">
+
+          </span>
+          <h1 className="text-2xl font-bold tracking-tight mt-1">
+            {lang === "UA" ? `Вітаємо, ${userName || "Замовник"}!` : `Welcome, ${userName || "Client"}!`}
           </h1>
-          <p className="text-xs text-zinc-400">
-            {lang === "en"
-              ? "Here you can view the status of your design project and visualization stages."
-              : "Тут ви зможете переглядати статус вашого дизайн-проєкту та етапи візуалізації."}
+          <p className="text-xs text-zinc-400 mt-1">
+            {lang === "UA"
+              ? "Тут ви можете відстежувати хід візуалізації, узгоджувати ТЗ та додавати нові об'єкти."
+              : "Track your design project status and manage specifications."}
           </p>
         </div>
+
+        {/* Головна кнопка створення нового проєкту */}
+        <Link
+          href="/client/projects/new"
+          className="bg-white text-black font-semibold px-6 py-3.5 rounded-2xl text-xs uppercase tracking-wider hover:bg-zinc-200 transition cursor-pointer font-mono shadow-lg shrink-0"
+        >
+          {lang === "UA" ? "+ Створити новий проєкт" : "+ Create New Project"}
+        </Link>
       </div>
-    </main>
+
+      {/* Список проєктів клієнта */}
+      <div className="space-y-4">
+        <h2 className="text-xs font-mono uppercase text-zinc-400 tracking-wider">
+          {lang === "UA" ? "Ваші об'єкти та проєкти" : "Your Projects"}
+        </h2>
+
+        {loading ? (
+          <div className="text-xs font-mono text-zinc-500 py-8">
+            {lang === "UA" ? "Завантаження проєктів..." : "Loading projects..."}
+          </div>
+        ) : projects.length === 0 ? (
+          /* Порожній стан, якщо проєктів ще немає */
+          <div className="bg-[#121214]/60 border border-dashed border-white/10 p-12 rounded-3xl text-center space-y-4">
+            <div className="text-3xl opacity-40">🏠</div>
+            <div>
+              <h3 className="text-sm font-bold">
+                {lang === "UA" ? "У вас поки немає активних проєктів" : "No active projects yet"}
+              </h3>
+              <p className="text-xs text-zinc-500 mt-1 max-w-md mx-auto">
+                {lang === "UA"
+                  ? "Натисніть кнопку нижче, щоб заповнити ТЗ, прикріпити креслення та відправити об'єкт у роботу студії."
+                  : "Click the button below to fill out specs and attach drawings."}
+              </p>
+            </div>
+            <Link
+              href="/client/projects/new"
+              className="inline-block bg-white text-black font-semibold px-5 py-3 rounded-xl text-xs uppercase tracking-wider hover:bg-zinc-200 transition font-mono"
+            >
+              {lang === "UA" ? "Додати перше ТЗ" : "Add First Project"}
+            </Link>
+          </div>
+        ) : (
+          /* Картки активних проєктів */
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {projects.map((p) => (
+              <div
+                key={p.id}
+                className="bg-[#121214] border border-white/10 p-6 rounded-2xl space-y-4 hover:border-white/30 transition flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex justify-between items-start mb-3">
+                    <span className="text-[10px] font-mono text-zinc-500">ID: {p.id.slice(0, 8)}...</span>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                      {PROJECT_STATUS_LABELS[p.status]?.[lang] || p.status}
+                    </span>
+                  </div>
+                  <h3 className="text-base font-bold text-white">{p.title}</h3>
+                  <p className="text-xs font-mono text-zinc-400 mt-2">
+                    {p.property_type === "apartment" ? "Квартира" : "Будинок"} | {p.area} м²
+                  </p>
+                </div>
+
+                <div className="pt-4 border-t border-white/5 flex justify-between items-center text-xs font-mono">
+                  <span className="text-zinc-500">{new Date(p.created_at).toLocaleDateString()}</span>
+                  <Link
+                    href={`/project-workspace/${p.id}`}
+                    className="text-white hover:underline"
+                  >
+                    {lang === "UA" ? "Деталі →" : "Details →"}
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

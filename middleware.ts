@@ -36,7 +36,7 @@ export async function middleware(request: NextRequest) {
   const pathname = url.pathname;
 
   // 1. Якщо користувач не заавторизований і намагається зайти в захищені розділи
-  if (!user && (pathname.startsWith("/admin") || pathname.startsWith("/designer") || pathname.startsWith("/client"))) {
+  if (!user && (pathname.startsWith("/admin") || pathname.startsWith("/designer") || pathname.startsWith("/client") || pathname.startsWith("/project-workspace"))) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 

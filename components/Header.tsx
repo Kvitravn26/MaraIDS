@@ -30,7 +30,7 @@ export default function Header() {
           .single();
 
         const role = profile?.role || "client";
-        if (role === "admin") setDashboardUrl("/admin/leads");
+        if (role === "admin") setDashboardUrl("/admin/projects");
         else if (role === "designer") setDashboardUrl("/designer/projects");
         else setDashboardUrl("/client");
       }
