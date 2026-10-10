@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import Header from "@/components/Header";
 import About from "@/components/About";
-import Calculator from "@/components/Calculator";
+import Calculator from "@/components/PriceCalculator";
 import Contact from "@/components/Contact";
 import ProjectModal, { Project } from "@/components/ProjectModal";
 import { useApp } from "@/context/AppContext";

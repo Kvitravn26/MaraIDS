@@ -87,8 +87,6 @@ export default function Contact() {
     name: "",
     selectedCode: "+380",
     phoneOrContact: "",
-    propertyType: "apartment",
-    area: "80",
     message: "",
   });
 
@@ -97,9 +95,9 @@ export default function Contact() {
     setLoading(true);
     setError("");
 
-    const fullContact = 
-      formData.selectedCode === "email" 
-        ? formData.phoneOrContact 
+    const fullContact =
+      formData.selectedCode === "email"
+        ? formData.phoneOrContact
         : `${formData.selectedCode} ${formData.phoneOrContact}`;
 
     try {
@@ -109,8 +107,6 @@ export default function Contact() {
         body: JSON.stringify({
           name: formData.name,
           contact: fullContact,
-          propertyType: formData.propertyType,
-          area: formData.area,
           message: formData.message,
         }),
       });
@@ -153,8 +149,8 @@ export default function Contact() {
           <div className="space-y-4 text-xs font-light text-zinc-300">
             <div>
               <span className="text-zinc-500 block mb-1 uppercase tracking-wider text-[10px]">Email</span>
-              <a href="mailto:Mara design studio" className="hover:text-white transition-colors font-mono">
-              maradesigninterior@gmail.com
+              <a href="mailto:maradesigninterior@gmail.com" className="hover:text-white transition-colors font-mono">
+                maradesigninterior@gmail.com
               </a>
             </div>
             <div>
@@ -193,7 +189,7 @@ export default function Contact() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="text-[10px] uppercase font-mono tracking-widest text-zinc-500 block mb-2">
-                    {lang === "UA" ? "Ваше ім'я" : "Your Name"}
+                    {lang === "UA" ? "Як до вас звертатись?" : "Your Name"}
                   </label>
                   <input
                     type="text"
@@ -205,7 +201,7 @@ export default function Contact() {
                   />
                 </div>
 
-                {/* Поле контакту з динамічним вибором мови країн */}
+                {/* Поле контакту з вибором коду країни */}
                 <div>
                   <label className="text-[10px] uppercase font-mono tracking-widest text-zinc-500 block mb-2">
                     {lang === "UA" ? "Номер телефону / Контакт" : "Phone Number / Contact"}
@@ -235,42 +231,6 @@ export default function Contact() {
                       }
                     />
                   </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="text-[10px] uppercase font-mono tracking-widest text-zinc-500 block mb-2">
-                    {lang === "UA" ? "Тип приміщення" : "Property Type"}
-                  </label>
-                  <select
-                    value={formData.propertyType}
-                    onChange={(e) => setFormData({ ...formData, propertyType: e.target.value })}
-                    className="w-full bg-black border border-white/10 px-4 py-3 text-xs text-white focus:border-white focus:outline-none transition-colors"
-                  >
-                    <option value="apartment">
-                      {lang === "UA" ? "Квартира" : "Apartment"}
-                    </option>
-                    <option value="house">
-                      {lang === "UA" ? "Будинок / Котедж" : "House / Cottage"}
-                    </option>
-                    <option value="commercial">
-                      {lang === "UA" ? "Комерційне приміщення" : "Commercial Space"}
-                    </option>
-                  </select>
-                </div>
-                <div>
-                  <label className="text-[10px] uppercase font-mono tracking-widest text-zinc-500 block mb-2">
-                    {lang === "UA" ? "Орієнтовна площа (м²)" : "Estimated Area (sq m)"}
-                  </label>
-                  <input
-                    type="number"
-                    min={10}
-                    max={2000}
-                    value={formData.area}
-                    onChange={(e) => setFormData({ ...formData, area: e.target.value })}
-                    className="w-full bg-black/50 border border-white/10 px-4 py-3 text-xs text-white focus:border-white focus:outline-none transition-colors font-mono"
-                  />
                 </div>
               </div>
 

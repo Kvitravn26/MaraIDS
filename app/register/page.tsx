@@ -1,74 +1,95 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
 
-export default function RegisterPage() {
+function RegisterForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // 1. Зчитуємо дані з калькулятора з URL
+  const calcData = {
+    service: searchParams.get("service") || "3D-Візуалізація",
+    area: searchParams.get("area") || "80",
+    price: searchParams.get("price") || "0",
+    currency: searchParams.get("currency") || "UAH",
+  };
+
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("client");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
 
     try {
-      // Реєструємо і передаємо метадані для тригера бази даних
-      const { data, error: signUpError } = await supabase.auth.signUp({
+      // 1. Реєстрація користувача в Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          data: {
-            full_name: fullName,
-            role: role,
-          },
+          data: { full_name: fullName, role: "client" },
         },
       });
 
-      if (signUpError) throw signUpError;
+      if (authError) throw authError;
+      const user = authData.user;
 
-      // Перенаправлення відповідно до ролі
-      if (role === "designer") {
-        router.push("/designer/projects");
-      } else if (role === "admin") {
-        router.push("/admin/leads");
-      } else {
-        router.push("/client");
+      if (user) {
+        // 2. Зберігаємо параметри розрахунку з калькулятора у таблицю проєктів/лідів
+        const { error: projectError } = await supabase.from("projects").insert([
+          {
+            client_id: user.id,
+            service_type: calcData.service,
+            area: Number(calcData.area),
+            budget: Number(calcData.price),
+            currency: calcData.currency,
+            status: "pending", // новий лід / проєкт на розгляді
+          },
+        ]);
+
+        if (projectError) {
+          console.error("Помилка збереження проєкту:", projectError.message);
+        }
       }
 
-      router.refresh();
+      // 3. Перенаправлення у кабінет клієнта
+      router.push("/client");
     } catch (err: any) {
-      setError(err.message || "Помилка при реєстрації");
+      alert("Помилка реєстрації: " + err.message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <main className="min-h-screen bg-[#070708] text-white flex items-center justify-center p-6 font-mono">
-      <div className="max-w-md w-full bg-zinc-900 border border-white/10 p-8 rounded-xl space-y-6">
-        <div className="space-y-1 text-center">
-          <h1 className="text-xl font-bold tracking-tight">Реєстрація</h1>
-          <p className="text-xs text-zinc-400">Mara Design Studio</p>
+    <div className="min-h-screen bg-[#070708] text-white flex items-center justify-center p-6 font-mono">
+      <div className="w-full max-w-md bg-zinc-900 border border-white/10 p-8 rounded-2xl space-y-6">
+        
+        <div>
+          <h1 className="text-xl font-bold tracking-tight">Реєстрація замовника</h1>
+          {calcData.price !== "0" && (
+            <div className="mt-3 p-3 bg-zinc-800/50 border border-white/5 rounded-xl text-xs space-y-1 text-zinc-300">
+              <p className="text-white font-semibold">Обраний розрахунок:</p>
+              <p>{calcData.service} — {calcData.area} м²</p>
+              <p className="text-emerald-400 font-bold">Сума: {Number(calcData.price).toLocaleString()} {calcData.currency}</p>
+            </div>
+          )}
         </div>
 
         <form onSubmit={handleRegister} className="space-y-4">
           <div>
-            <label className="block text-xs text-zinc-400 mb-1">Ваше ім'я</label>
+            <label className="block text-xs text-zinc-400 mb-1">Ім'я та Прізвище</label>
             <input
               type="text"
+              required
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              required
-              className="w-full bg-zinc-800 border border-zinc-700 rounded p-2.5 text-sm text-white focus:outline-none focus:border-white/40"
-              placeholder="Роман Кусік"
+              className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-white"
+              placeholder="Nata Kusik"
             />
           </div>
 
@@ -76,11 +97,11 @@ export default function RegisterPage() {
             <label className="block text-xs text-zinc-400 mb-1">Email</label>
             <input
               type="email"
+              required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full bg-zinc-800 border border-zinc-700 rounded p-2.5 text-sm text-white focus:outline-none focus:border-white/40"
-              placeholder="romkusik@gmail.com"
+              className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-white"
+              placeholder="name@example.com"
             />
           </div>
 
@@ -88,45 +109,33 @@ export default function RegisterPage() {
             <label className="block text-xs text-zinc-400 mb-1">Пароль</label>
             <input
               type="password"
+              required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full bg-zinc-800 border border-zinc-700 rounded p-2.5 text-sm text-white focus:outline-none focus:border-white/40"
+              className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-white"
               placeholder="••••••••"
             />
           </div>
 
-          <div>
-            <label className="block text-xs text-zinc-400 mb-1">Оберіть роль</label>
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="w-full bg-zinc-800 border border-zinc-700 rounded p-2.5 text-sm text-white focus:outline-none focus:border-white/40 cursor-pointer"
-            >
-              <option value="client">Клієнт</option>
-              <option value="designer">Дизайнер</option>
-              <option value="admin">Адміністратор</option>
-            </select>
-          </div>
-
-          {error && <p className="text-red-400 text-xs">{error}</p>}
-
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-white text-black font-semibold p-2.5 rounded text-xs hover:bg-zinc-200 transition cursor-pointer disabled:opacity-50"
+            className="w-full bg-white text-black font-semibold py-3.5 rounded-xl text-xs hover:bg-zinc-200 transition cursor-pointer"
           >
-            {loading ? "Створення акаунту..." : "Зареєструватися"}
+            {loading ? "Створення облікового запису..." : "Завершити оформлення"}
           </button>
         </form>
 
-        <div className="text-center text-xs text-zinc-400 pt-2 border-t border-white/5">
-          Вже є акаунт?{" "}
-          <Link href="/login" className="text-white hover:underline font-medium">
-            Увійти
-          </Link>
-        </div>
       </div>
-    </main>
+    </div>
+  );
+}
+
+// Обгортка у Suspense обов'язкова для Next.js App Router при використанні useSearchParams
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#070708] text-white flex items-center justify-center font-mono">Завантаження...</div>}>
+      <RegisterForm />
+    </Suspense>
   );
 }

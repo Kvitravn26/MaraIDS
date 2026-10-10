@@ -1,7 +1,16 @@
 "use client";
 
 import { useApp } from "@/context/AppContext";
+import PriceCalculator from "@/components/PriceCalculator";
 
+export default function Services() {
+  return (
+    <section id="services" className="py-20">
+      {/* Ваш блок послуг */}
+      <PriceCalculator />
+    </section>
+  );
+}
 interface ServiceTier {
   titleUa: string;
   titleEn: string;
