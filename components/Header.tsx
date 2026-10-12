@@ -73,7 +73,7 @@ export default function Header() {
           <img
             src="/logo.png"
             alt="Mara Design Studio"
-            className="h-11 w-auto object-contain brightness-0 opacity-85 transition-opacity group-hover:opacity-100"
+            className="h-22 w-auto object-contain brightness-75 opacity-100 transition-opacity group-hover:opacity-100"
           />
         </Link>
 

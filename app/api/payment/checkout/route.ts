@@ -4,6 +4,22 @@ import { supabase } from "@/lib/supabase";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    const recipientDetails = body.recipientDetails;
+    const requiredRecipientFields = ["name", "country", "address", "email", "city", "phone"];
+    const hasRequiredRecipientDetails = requiredRecipientFields.every(
+      (field) => typeof recipientDetails?.[field] === "string" && recipientDetails[field].trim().length > 0
+    );
+    const hasValidEmail =
+      typeof recipientDetails?.email === "string" &&
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipientDetails.email.trim());
+
+    if (!hasRequiredRecipientDetails || !hasValidEmail) {
+      return NextResponse.json(
+        { success: false, error: "Complete all required invoice recipient details before payment." },
+        { status: 400 }
+      );
+    }
+
     const {
       invoiceId,
       projectId,

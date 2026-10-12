@@ -17,6 +17,14 @@ interface PaymentCheckoutModalProps {
   milestoneId?: string;
   milestoneTitle?: string;
   paymentModel: string;
+  recipientDetails: {
+    name: string;
+    country: string;
+    address: string;
+    email: string;
+    city: string;
+    phone: string;
+  };
 }
 
 export default function PaymentCheckoutModal({
@@ -33,6 +41,7 @@ export default function PaymentCheckoutModal({
   milestoneId,
   milestoneTitle,
   paymentModel,
+  recipientDetails,
 }: PaymentCheckoutModalProps) {
   const { lang } = useApp();
 
@@ -71,6 +80,7 @@ export default function PaymentCheckoutModal({
           paymentModel,
           projectTitle,
           invoiceNumber,
+          recipientDetails,
         }),
       });
 

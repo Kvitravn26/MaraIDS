@@ -161,14 +161,14 @@ export default function Home() {
 
         <div className="relative z-10 w-full max-w-[1600px] mx-auto">
           <div className="max-w-4xl">
-            <span className="mb-4 inline-block rounded-xs bg-white/80 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.22em] text-[#1c1b18] backdrop-blur-md border border-[#e4e0d5]">
+            <span className="mb-4 inline-block rounded-xs bg-white/80 px-3 py-1 text-xs font-medium uppercase tracking-[0.2em] text-[#8C857B] backdrop-blur-md border border-[#e4e0d5]">
               {lang === "UA" ? "Студія 3D Архітектури та Дизайну" : "3D Architecture & Interior Studio"}
             </span>
             <h1 className="font-serif text-4xl font-normal leading-[1.05] text-[#1c1b18] sm:text-6xl md:text-7xl lg:text-8xl">
               {lang === "UA" ? (
-                <>Архітектурна візуалізація <br className="hidden sm:inline" />та дизайн простору</>
+                <>Архітектурна візуалізація <br className="hidden sm:inline" />та <span className="italic font-light">дизайн простору</span></>
               ) : (
-                <>Architectural visualization <br className="hidden sm:inline" />& space design</>
+                <>Architectural visualization <br className="hidden sm:inline" />&amp; <span className="italic font-light">space design</span></>
               )}
             </h1>
 
@@ -201,7 +201,7 @@ export default function Home() {
       <section id="projects" className="mx-auto max-w-[1600px] py-24 sm:py-32">
         <div className="mb-10 flex items-end justify-between gap-6 px-5 sm:mb-14 sm:px-8 lg:px-12">
           <div>
-            <span className="mb-3 block text-[11px] font-medium uppercase tracking-[0.2em] text-[#6e6c64]">
+            <span className="mb-3 block text-xs font-medium uppercase tracking-[0.2em] text-[#8C857B]">
               {lang === "UA" ? "Портфоліо · 2025—2026" : "Selected Works · 2025—2026"}
             </span>
             <h2 className="font-serif text-3xl font-normal text-[#1c1b18] sm:text-5xl">
@@ -273,7 +273,7 @@ export default function Home() {
       <section id="services" className="border-t border-[#e4e0d5] bg-[#f4f0e8] py-24 sm:py-32">
         <div className="mx-auto max-w-[1600px] px-5 sm:px-8 lg:px-12">
           <div className="mb-14 max-w-3xl">
-            <span className="mb-3 block text-[11px] font-medium uppercase tracking-[0.2em] text-[#6e6c64]">
+            <span className="mb-3 block text-xs font-medium uppercase tracking-[0.2em] text-[#8C857B]">
               {lang === "UA" ? "Бізнес-модель & Методологія" : "Business Model & Workflow"}
             </span>
             <h2 className="font-serif text-3xl font-normal text-[#1c1b18] sm:text-5xl">
@@ -341,7 +341,7 @@ export default function Home() {
           {/* Client Portal Callout */}
           <div className="mt-12 rounded-sm border border-[#e4e0d5] bg-[#faf8f5] p-8 sm:p-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div>
-              <span className="text-[10px] uppercase tracking-[0.2em] font-medium text-[#8f8c82]">
+              <span className="text-xs uppercase tracking-[0.2em] font-medium text-[#8C857B]">
                 {lang === "UA" ? "Екосистема співпраці" : "Client Ecosystem"}
               </span>
               <h3 className="font-serif text-2xl font-normal text-[#1c1b18] mt-1">

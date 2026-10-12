@@ -160,16 +160,24 @@ export default function ClientDashboard() {
                   </p>
                 </div>
 
-                <div className="mt-6 flex items-center justify-between border-t border-[#e4e0d5] pt-4 text-xs font-mono">
+                <div className="mt-6 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t border-[#e4e0d5] pt-4 text-xs font-mono">
                   <span className="text-[#8f8c82]">
                     {new Date(p.created_at).toLocaleDateString(lang === "UA" ? "uk-UA" : "en-US")}
                   </span>
-                  <Link
-                    href={`/project-workspace/${p.id}`}
-                    className="font-medium text-[#1c1b18] underline hover:no-underline"
-                  >
-                    {lang === "UA" ? "Робоча зона →" : "Workspace →"}
-                  </Link>
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                    <Link
+                      href={`/client/projects/${p.id}/invoice`}
+                      className="font-medium text-[#1c1b18] underline hover:no-underline"
+                    >
+                      {lang === "UA" ? "Оплата проєкту →" : "Project payment →"}
+                    </Link>
+                    <Link
+                      href={`/project-workspace/${p.id}`}
+                      className="font-medium text-[#1c1b18] underline hover:no-underline"
+                    >
+                      {lang === "UA" ? "Робоча зона →" : "Workspace →"}
+                    </Link>
+                  </div>
                 </div>
               </div>
             ))}

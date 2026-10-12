@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef, Suspense } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useApp, Currency } from "@/context/AppContext";
+import { useApp } from "@/context/AppContext";
 import { supabase } from "@/lib/supabase";
 import {
   Invoice,
@@ -13,6 +13,55 @@ import {
   PAYMENT_MODELS_INFO,
 } from "@/lib/invoiceService";
 import PaymentCheckoutModal from "@/components/PaymentCheckoutModal";
+
+type InvoiceRecipient = {
+  name: string;
+  region: string;
+  country: string;
+  city: string;
+  address: string;
+  phone: string;
+  email: string;
+  studio: string;
+};
+
+const EMPTY_RECIPIENT: InvoiceRecipient = {
+  name: "",
+  region: "",
+  country: "",
+  city: "",
+  address: "",
+  phone: "",
+  email: "",
+  studio: "",
+};
+
+function numberToWords(value: number): string {
+  const units = [
+    "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+    "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen",
+    "seventeen", "eighteen", "nineteen",
+  ];
+  const tens = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
+  const underThousand = (number: number): string => {
+    const parts: string[] = [];
+    if (number >= 100) parts.push(`${units[Math.floor(number / 100)]} hundred`);
+    number %= 100;
+    if (number >= 20) {
+      parts.push(tens[Math.floor(number / 10)]);
+      if (number % 10) parts.push(units[number % 10]);
+    } else if (number > 0 || parts.length === 0) {
+      parts.push(units[number]);
+    }
+    return parts.join(" ");
+  };
+
+  const amount = Math.max(0, Math.floor(value));
+  if (amount < 1000) return underThousand(amount);
+  const thousands = Math.floor(amount / 1000);
+  const remainder = amount % 1000;
+  return `${underThousand(thousands)} thousand${remainder ? ` ${underThousand(remainder)}` : ""}`;
+}
 
 export default function ProjectInvoicePage() {
   return (
@@ -41,6 +90,8 @@ function ProjectInvoiceContent() {
   const [error, setError] = useState("");
   const [copyFeedback, setCopyFeedback] = useState("");
   const [isExportingPdf, setIsExportingPdf] = useState(false);
+  const [recipient, setRecipient] = useState<InvoiceRecipient>(EMPTY_RECIPIENT);
+  const [recipientLoaded, setRecipientLoaded] = useState(false);
 
   // Modal checkout state
   const [checkoutModal, setCheckoutModal] = useState<{
@@ -55,6 +106,7 @@ function ProjectInvoiceContent() {
   });
 
   const invoiceRef = useRef<HTMLDivElement>(null);
+  const recipientFormRef = useRef<HTMLFormElement>(null);
 
   const loadData = async () => {
     try {
@@ -79,6 +131,20 @@ function ProjectInvoiceContent() {
       }
 
       setProject(projData);
+      const storageKey = `invoice-recipient-${projData.id}`;
+      let savedRecipient: Partial<InvoiceRecipient> = {};
+      try {
+        savedRecipient = JSON.parse(localStorage.getItem(storageKey) || "{}");
+      } catch {
+        savedRecipient = {};
+      }
+      setRecipient({
+        ...EMPTY_RECIPIENT,
+        name: projData.client_name || "",
+        email: projData.client_email || "",
+        ...savedRecipient,
+      });
+      setRecipientLoaded(true);
 
       // Load or create invoice
       const invoiceData = await getOrCreateProjectInvoice(
@@ -101,6 +167,16 @@ function ProjectInvoiceContent() {
   useEffect(() => {
     loadData();
   }, [projectId, lang]);
+
+  useEffect(() => {
+    if (recipientLoaded && projectId) {
+      try {
+        localStorage.setItem(`invoice-recipient-${projectId}`, JSON.stringify(recipient));
+      } catch {
+        // Keep invoice editing available when storage is disabled.
+      }
+    }
+  }, [projectId, recipient, recipientLoaded]);
 
   // Payment model changer (allowed when unpaid)
   const handleChangePaymentModel = async (newModel: PaymentModel) => {
@@ -127,7 +203,7 @@ function ProjectInvoiceContent() {
 
   // PDF Export using jspdf + html2canvas
   const handleDownloadPdf = async () => {
-    if (!invoiceRef.current) return;
+    if (!invoiceRef.current || !recipientFormRef.current?.reportValidity()) return;
     setIsExportingPdf(true);
 
     try {
@@ -161,6 +237,7 @@ function ProjectInvoiceContent() {
   };
 
   const handlePrint = () => {
+    if (!recipientFormRef.current?.reportValidity()) return;
     window.print();
   };
 
@@ -206,13 +283,26 @@ function ProjectInvoiceContent() {
   const asciiProgressBar = `[${"█".repeat(filledBlocks)}${"░".repeat(emptyBlocks)}]`;
 
   const invoiceCurrency = invoice.currency || currentCurrency;
-  const pricePerSqm = Math.round(totalAmount / (project.area || 1));
+  const recipientIsValid = [
+    recipient.name,
+    recipient.country,
+    recipient.address,
+    recipient.email,
+    recipient.city,
+    recipient.phone,
+  ].every((value) => value.trim().length > 0) &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipient.email.trim());
+  const bankIban = invoiceCurrency === "UAH"
+    ? "UA683220010000026007350043209"
+    : "GB07CLJU00997187568390";
+  const pricePerSqm = totalAmount / (project.area || 1);
 
   // Date strings
-  const invoiceDate = new Date(invoice.created_at).toLocaleDateString(
-    lang === "UA" ? "uk-UA" : "en-US",
-    { day: "2-digit", month: "long", year: "numeric" }
-  );
+  const invoiceDate = new Date(invoice.created_at).toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
   const dueDate = new Date(
     new Date(invoice.created_at).getTime() + 7 * 24 * 60 * 60 * 1000
   ).toLocaleDateString(lang === "UA" ? "uk-UA" : "en-US", {
@@ -220,6 +310,18 @@ function ProjectInvoiceContent() {
     month: "long",
     year: "numeric",
   });
+
+  const recipientFields: { field: keyof InvoiceRecipient; label: string; required: boolean }[] = [
+    { field: "name", label: invoiceCurrency === "UAH" ? "Прізвище Ім'я По-батькові" : "Name client / name", required: true },
+    ...(invoiceCurrency === "UAH"
+      ? [{ field: "region", label: "Область", required: false }]
+      : [{ field: "studio", label: "Studio", required: false }]),
+    { field: "country", label: invoiceCurrency === "UAH" ? "Країна" : "Country", required: true },
+    { field: "city", label: invoiceCurrency === "UAH" ? "Місто" : "City", required: true },
+    { field: "address", label: invoiceCurrency === "UAH" ? "Адреса" : "Address", required: true },
+    { field: "phone", label: invoiceCurrency === "UAH" ? "Телефон" : "Phone", required: true },
+    { field: "email", label: invoiceCurrency === "UAH" ? "Електронна пошта" : "E-mail", required: true },
+  ];
 
   return (
     <main className="mx-auto max-w-5xl px-5 pb-24 pt-32 text-[#1c1b18] space-y-8 sm:px-8">
@@ -278,7 +380,8 @@ function ProjectInvoiceContent() {
                   });
                 }
               }}
-              className="cursor-pointer rounded-xs bg-[#1c1b18] px-5 py-2 font-medium uppercase tracking-wider text-white hover:bg-[#33312c] transition-colors inline-flex items-center gap-1.5"
+              disabled={!recipientIsValid}
+              className="cursor-pointer rounded-xs bg-[#1c1b18] px-5 py-2 font-medium uppercase tracking-wider text-white hover:bg-[#33312c] transition-colors inline-flex items-center gap-1.5 disabled:cursor-not-allowed disabled:opacity-40"
             >
               <span>💳</span>
               <span>{lang === "UA" ? "Сплатити онлайн" : "Pay Online"}</span>
@@ -375,43 +478,84 @@ function ProjectInvoiceContent() {
         </div>
       </div>
 
+      <form
+        ref={recipientFormRef}
+        className="rounded-sm border border-[#e4e0d5] bg-white p-5 sm:p-6 print:hidden"
+        onSubmit={(event) => event.preventDefault()}
+      >
+        <div className="mb-5 flex flex-wrap items-baseline justify-between gap-2 border-b border-[#e4e0d5] pb-3">
+          <h2 className="font-serif text-xl text-[#1c1b18]">
+            {lang === "UA" ? "Дані для інвойсу" : "Invoice recipient details"}
+          </h2>
+          <span className="font-mono text-[11px] text-[#8f8c82]">
+            {invoiceCurrency} · {project.title} · {project.area} м²
+          </span>
+          <button
+            type="button"
+            onClick={() => handleCopyIban(bankIban)}
+            className="cursor-pointer font-mono text-[11px] text-[#1c1b18] underline underline-offset-2"
+          >
+            {copyFeedback || (lang === "UA" ? "Скопіювати IBAN" : "Copy IBAN")}
+          </button>
+        </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {recipientFields.map(({ field, label, required }) => (
+            <label key={field} className="grid gap-1.5 font-mono text-[11px] text-[#6e6c64]">
+              <span>{label}</span>
+              <input
+                required={required}
+                type={field === "email" ? "email" : "text"}
+                value={recipient[field as keyof InvoiceRecipient]}
+                onChange={(event) =>
+                  setRecipient((current) => ({ ...current, [field]: event.target.value }))
+                }
+                className="min-h-10 rounded-xs border border-[#d8d4c9] bg-white px-3 text-sm text-[#1c1b18] outline-none focus:border-[#1c1b18]"
+              />
+            </label>
+          ))}
+        </div>
+        {!recipientIsValid && (
+          <p className="mt-4 font-mono text-[11px] text-[#8f4a32]" aria-live="polite">
+            {lang === "UA"
+              ? "Заповніть ім’я, країну, адресу, пошту, місто й телефон, щоб активувати оплату."
+              : "Enter a valid name, country, address, email, city, and phone to enable payment."}
+          </p>
+        )}
+      </form>
+
       {/* =========================================================================
           THE BRANDED INVOICE PAPER (Target for PDF generation and printing)
           ========================================================================= */}
       <div
-        ref={invoiceRef}
         id="invoice-paper"
-        className="rounded-sm border border-[#e4e0d5] bg-white p-8 sm:p-12 shadow-sm space-y-8"
+        className="space-y-8"
       >
+        <div
+          ref={invoiceRef}
+          className="rounded-sm border border-[#e4e0d5] bg-white p-8 sm:p-12 shadow-sm space-y-8"
+        >
         {/* Studio Invoice Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start gap-6 border-b border-[#e4e0d5] pb-8">
           <div>
             <div className="flex items-baseline gap-2">
-              <span className="font-serif text-3xl sm:text-4xl tracking-tight text-[#1c1b18] font-normal">
-                MARA
-              </span>
-              <span className="font-mono text-xs uppercase tracking-[0.25em] text-[#8f8c82]">
-                Design Studio
+                <span className="font-serif text-3xl sm:text-4xl tracking-tight text-[#1c1b18] font-normal">
+                Roman Kusik
               </span>
             </div>
             <p className="mt-1 text-xs text-[#6e6c64] font-mono">
-              3D Architectural Visualization & Spatial Concepts
+              {invoiceCurrency === "UAH" ? "Інвойс" : "INVOICE"}
             </p>
-            <div className="mt-3 text-[11px] font-mono leading-relaxed text-[#8f8c82]">
-              <p>м. Київ, вул. Архітектора Городецького, 11</p>
-              <p>Email: finance@mara-design.com · Тел: +380 (44) 239-11-20</p>
-            </div>
           </div>
 
           <div className="text-left sm:text-right font-mono text-xs space-y-1.5">
             <span className="inline-block rounded-xs bg-[#1c1b18] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white">
-              {lang === "UA" ? "РАХУНОК-ФАКТУРА" : "INVOICE"}
+              {invoiceCurrency === "UAH" ? "ІНВОЙС" : "INVOICE"}
             </span>
             <div className="text-base font-bold text-[#1c1b18] pt-1">
               {invoice.invoice_number}
             </div>
             <div className="text-[#6e6c64]">
-              {lang === "UA" ? "Дата:" : "Date:"} {invoiceDate}
+              {invoiceDate}
             </div>
             <div className="text-[#6e6c64]">
               {lang === "UA" ? "Термін оплати:" : "Due Date:"} {dueDate}
@@ -436,38 +580,53 @@ function ProjectInvoiceContent() {
           </div>
         </div>
 
-        {/* Customer & Project Credentials Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 rounded-xs border border-[#e4e0d5] bg-[#faf8f5] p-5 font-mono text-xs">
+        {/* Sender and recipient details */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 border-y border-[#e4e0d5] py-5 font-mono text-xs">
           <div>
             <span className="text-[10px] uppercase font-semibold text-[#8f8c82] tracking-wider block mb-1">
-              {lang === "UA" ? "Платник / Замовник (Client):" : "Billed To (Client):"}
+              {invoiceCurrency === "UAH" ? "Одержувач:" : "FROM:"}
             </span>
-            <p className="font-bold text-[#1c1b18] text-sm">{project.client_name}</p>
-            <p className="text-[#6e6c64] mt-0.5">{project.client_email}</p>
-            <p className="text-[#8f8c82] mt-1 text-[11px]">
-              ID замовника: {project.client_id.slice(0, 8)}
-            </p>
+            {invoiceCurrency === "UAH" ? (
+              <div className="leading-relaxed text-[#1c1b18]">
+                <p>ФОП Кусік Роман Миколайович</p>
+                <p>Україна, Рівненська обл., Рівненський р-н.,</p>
+                <p>м. Березне, вул. Героїв України 1 кв.12</p>
+                <p>34600</p>
+              </div>
+            ) : (
+              <div className="leading-relaxed text-[#1c1b18]">
+                <p>PE KUSIK ROMAN</p>
+                <p>Ukraine, reg. Rivnenska, district. Rivnenskyi,</p>
+                <p>Berezne, st. Heroiv Ukrainy, build. 1, fl. 12</p>
+                <p>34600</p>
+              </div>
+            )}
           </div>
 
           <div>
             <span className="text-[10px] uppercase font-semibold text-[#8f8c82] tracking-wider block mb-1">
-              {lang === "UA" ? "Об'єкт візуалізації (Project):" : "Project Particulars:"}
+              {invoiceCurrency === "UAH" ? "Відправник:" : "TO:"}
             </span>
-            <p className="font-bold text-[#1c1b18] text-sm">{project.title}</p>
-            <p className="text-[#6e6c64] mt-0.5">
-              {project.property_type === "apartment"
-                ? (lang === "UA" ? "Квартира" : "Apartment")
-                : project.property_type === "commercial"
-                ? (lang === "UA" ? "Комерційне приміщення" : "Commercial space")
-                : (lang === "UA" ? "Будинок" : "House")}
-              {` · ${project.area} м²`}
-            </p>
-            <p className="text-[#8f8c82] mt-1 text-[11px]">
-              {lang === "UA" ? "Модель розрахунку:" : "Payment Model:"}{" "}
-              <span className="font-semibold text-[#1c1b18]">
-                {PAYMENT_MODELS_INFO[invoice.payment_model][lang === "UA" ? "titleUa" : "titleEn"]}
-              </span>
-            </p>
+            <div className="leading-relaxed text-[#1c1b18]">
+              <p className="font-bold">{recipient.name}</p>
+              {invoiceCurrency === "UAH" ? (
+                <>
+                  <p>{recipient.country}</p>
+                  <p>{recipient.region}</p>
+                  <p>{recipient.city}</p>
+                  <p>{recipient.address}</p>
+                </>
+              ) : (
+                <>
+                  {recipient.studio && <p>{recipient.studio}</p>}
+                  <p>{recipient.country}</p>
+                  <p>{recipient.city}</p>
+                  <p>{recipient.address}</p>
+                </>
+              )}
+              <p>{recipient.phone}</p>
+              <p>{recipient.email}</p>
+            </div>
           </div>
         </div>
 
@@ -476,28 +635,21 @@ function ProjectInvoiceContent() {
           <table className="w-full text-left font-mono text-xs">
             <thead className="border-b border-[#e4e0d5] bg-[#faf8f5] text-[#6e6c64] text-[10px] uppercase tracking-wider">
               <tr>
-                <th className="p-3.5 w-12 text-center">№</th>
-                <th className="p-3.5">{lang === "UA" ? "Опис послуги" : "Service Description"}</th>
-                <th className="p-3.5 text-center">{lang === "UA" ? "Об'єм" : "Area"}</th>
-                <th className="p-3.5 text-right">{lang === "UA" ? "Ціна за м²" : "Rate / m²"}</th>
-                <th className="p-3.5 text-right">{lang === "UA" ? "Сума" : "Amount"}</th>
+                <th className="p-3.5">{invoiceCurrency === "UAH" ? "Проект" : "Service"}</th>
+                <th className="p-3.5 text-center">{invoiceCurrency === "UAH" ? "М.кв." : "Qty"}</th>
+                <th className="p-3.5 text-right">{invoiceCurrency === "UAH" ? "Ціна" : "Price"}</th>
+                <th className="p-3.5 text-right">{invoiceCurrency === "UAH" ? "Сума ₴" : `Amount ${invoiceCurrency === "EUR" ? "€" : "$"}`}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#e4e0d5]">
               <tr>
-                <td className="p-3.5 text-center text-[#8f8c82]">1</td>
-                <td className="p-3.5">
-                  <div className="font-semibold text-[#1c1b18]">
-                    {lang === "UA" ? "3D-візуалізація інтер'єру простору" : "3D Architectural Visualization"}
-                  </div>
-                  <div className="text-[11px] text-[#6e6c64] mt-0.5">
-                    {lang === "UA"
-                      ? `Фотореалістичні ракурси, освітлення, моделювання меблів та текстурування (${project.title})`
-                      : `Photorealistic camera angles, textures, lighting & CGI modeling (${project.title})`}
-                  </div>
+                <td className="p-3.5 font-semibold text-[#1c1b18]">
+                  {invoiceCurrency === "UAH" ? project.title : `3D rendering Project: ${project.title}`}
                 </td>
-                <td className="p-3.5 text-center text-[#1c1b18]">{project.area} м²</td>
-                <td className="p-3.5 text-right text-[#1c1b18]">{pricePerSqm} {invoiceCurrency}</td>
+                <td className="p-3.5 text-center text-[#1c1b18]">{project.area} {invoiceCurrency === "UAH" ? "м²" : "Sq.m"}</td>
+                <td className="p-3.5 text-right text-[#1c1b18]">
+                  {pricePerSqm.toLocaleString(lang === "UA" ? "uk-UA" : "en-US", { maximumFractionDigits: 2 })} {invoiceCurrency}
+                </td>
                 <td className="p-3.5 text-right font-semibold text-[#1c1b18]">
                   {totalAmount.toLocaleString()} {invoiceCurrency}
                 </td>
@@ -508,11 +660,11 @@ function ProjectInvoiceContent() {
 
         {/* Totals & Breakdown */}
         <div className="flex flex-col sm:flex-row justify-between items-start gap-6 font-mono text-xs">
-          <div className="max-w-md text-[#6e6c64] space-y-2">
+            <div className="max-w-md text-[#6e6c64] space-y-2">
             <span className="text-[10px] uppercase font-semibold text-[#8f8c82] tracking-wider block">
               {lang === "UA" ? "Правила та умови оплати:" : "Payment Terms & Deliverables:"}
             </span>
-            {invoice.payment_model === "FULL" && (
+              {invoice.payment_model === "FULL" && (
               <p className="text-[11px] leading-relaxed">
                 {lang === "UA"
                   ? "• 100% попередня оплата. Повне розблокування всіх ракурсів, версій рендерів та експортних креслень без обмежень."
@@ -566,10 +718,50 @@ function ProjectInvoiceContent() {
           </div>
         </div>
 
+        <div className="rounded-xs border border-[#e4e0d5] bg-[#faf8f5] p-5 font-mono text-xs space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] uppercase font-semibold text-[#8f8c82] tracking-wider">
+              {invoiceCurrency === "UAH" ? "Реквізити для оплати:" : "Transfer to account"}
+            </span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11px] text-[#4a4943]">
+            {invoiceCurrency === "UAH" ? (
+              <>
+                <div>
+                  <p><strong>IBAN:</strong> {bankIban}</p>
+                  <p><strong>ІПН/ЄДРПОУ:</strong> 3542604017</p>
+                  <p><strong>МФО:</strong> 322001</p>
+                  <p><strong>ЄДРПОУ банку:</strong> 21133352</p>
+                </div>
+                <div>
+                  <p>Призначення платежу: Надання послуг з дизайну інтер’єру</p>
+                  <p>Акціонерне товариство УНІВЕРСАЛ БАНК</p>
+                </div>
+              </>
+            ) : (
+              <>
+                <div>
+                  <p>KUSIK ROMAN</p>
+                  <p>Tax ID: 3542604017</p>
+                  <p>Bank: Clear Junction Limited</p>
+                  <p>City: 15 Kingsway, London WC2B 6UN</p>
+                  <p>BIC: CLJUGB21</p>
+                </div>
+                <div>
+                  <p><strong>IBAN:</strong> {bankIban}</p>
+                  <p className="mt-2"><strong>TOTAL {invoiceCurrency}:</strong> {totalAmount.toLocaleString()}</p>
+                  <p><strong>In words:</strong> {numberToWords(totalAmount)} {invoiceCurrency === "EUR" ? "euro" : "dollars"}</p>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+        </div>
+
         {/* =========================================================================
             STAGE / MILESTONES PAYMENT ACTION CARDS
             ========================================================================= */}
-        <div className="border-t border-[#e4e0d5] pt-6 space-y-4">
+        <div className="border-t border-[#e4e0d5] pt-6 space-y-4 print:hidden">
           <h4 className="font-mono text-xs uppercase tracking-[0.16em] text-[#1c1b18] font-semibold">
             {lang === "UA" ? "Графік платежів та статус етапів" : "Payment Schedule & Stages"}
           </h4>
@@ -600,6 +792,7 @@ function ProjectInvoiceContent() {
               {invoice.status !== "PAID" && (
                 <button
                   type="button"
+                  disabled={!recipientIsValid}
                   onClick={() =>
                     setCheckoutModal({
                       isOpen: true,
@@ -607,7 +800,7 @@ function ProjectInvoiceContent() {
                       amount: totalAmount,
                     })
                   }
-                  className="print:hidden cursor-pointer rounded-xs bg-[#1c1b18] px-4 py-2 font-medium uppercase tracking-wider text-white hover:bg-[#33312c] transition-colors"
+                  className="print:hidden cursor-pointer rounded-xs bg-[#1c1b18] px-4 py-2 font-medium uppercase tracking-wider text-white hover:bg-[#33312c] transition-colors disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   {lang === "UA" ? "Сплатити 100% онлайн →" : "Pay 100% Online →"}
                 </button>
@@ -643,6 +836,7 @@ function ProjectInvoiceContent() {
                 {paidAmount < Math.round(totalAmount * 0.5) && (
                   <button
                     type="button"
+                    disabled={!recipientIsValid}
                     onClick={() =>
                       setCheckoutModal({
                         isOpen: true,
@@ -650,7 +844,7 @@ function ProjectInvoiceContent() {
                         amount: Math.round(totalAmount * 0.5),
                       })
                     }
-                    className="print:hidden cursor-pointer rounded-xs bg-[#1c1b18] px-4 py-2 font-medium uppercase tracking-wider text-white hover:bg-[#33312c] transition-colors"
+                    className="print:hidden cursor-pointer rounded-xs bg-[#1c1b18] px-4 py-2 font-medium uppercase tracking-wider text-white hover:bg-[#33312c] transition-colors disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     {lang === "UA" ? "Сплатити аванс 50% →" : "Pay 50% Deposit →"}
                   </button>
@@ -682,7 +876,7 @@ function ProjectInvoiceContent() {
                 {paidAmount < totalAmount && (
                   <button
                     type="button"
-                    disabled={paidAmount < Math.round(totalAmount * 0.5)}
+                    disabled={!recipientIsValid || paidAmount < Math.round(totalAmount * 0.5)}
                     onClick={() =>
                       setCheckoutModal({
                         isOpen: true,
@@ -733,6 +927,7 @@ function ProjectInvoiceContent() {
                     {m.status !== "PAID" && (
                       <button
                         type="button"
+                        disabled={!recipientIsValid}
                         onClick={() =>
                           setCheckoutModal({
                             isOpen: true,
@@ -742,7 +937,7 @@ function ProjectInvoiceContent() {
                             amount: Number(m.amount),
                           })
                         }
-                        className="print:hidden cursor-pointer rounded-xs bg-[#1c1b18] px-4 py-2 font-medium uppercase tracking-wider text-white hover:bg-[#33312c] transition-colors"
+                        className="print:hidden cursor-pointer rounded-xs bg-[#1c1b18] px-4 py-2 font-medium uppercase tracking-wider text-white hover:bg-[#33312c] transition-colors disabled:cursor-not-allowed disabled:opacity-40"
                       >
                         {lang === "UA" ? `Сплатити етап (${Number(m.amount).toLocaleString()} ${invoiceCurrency}) →` : `Pay Milestone →`}
                       </button>
@@ -754,57 +949,6 @@ function ProjectInvoiceContent() {
           )}
         </div>
 
-        {/* Banking Requisites Box for Direct Wire Transfer */}
-        <div className="rounded-xs border border-[#e4e0d5] bg-[#faf8f5] p-5 font-mono text-xs space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase font-semibold text-[#8f8c82] tracking-wider">
-              {lang === "UA" ? "Банківські реквізити для оплати за IBAN (ФОП):" : "Official Wire Transfer Details (IBAN):"}
-            </span>
-            {copyFeedback && (
-              <span className="text-emerald-700 font-bold text-[11px]">{copyFeedback}</span>
-            )}
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11px] text-[#4a4943]">
-            <div>
-              <p><strong>Одержувач:</strong> ФОП Mara Design Studio</p>
-              <p><strong>ЄДРПОУ / ІПН:</strong> 3419827361</p>
-              <p><strong>Банк:</strong> АТ "Універсал Банк" (Monobank)</p>
-            </div>
-            <div>
-              <p className="flex items-center gap-2">
-                <span><strong>IBAN:</strong> UA483052990000026007812903145</span>
-                <button
-                  type="button"
-                  onClick={() => handleCopyIban("UA483052990000026007812903145")}
-                  className="print:hidden cursor-pointer text-[#1c1b18] underline hover:no-underline text-[10px]"
-                >
-                  [Копіювати]
-                </button>
-              </p>
-              <p><strong>Призначення:</strong> Оплата за послуги 3D-візуалізації згідно з рахунком {invoice.invoice_number}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Stamp & Signature Footer */}
-        <div className="flex justify-between items-end pt-8 border-t border-[#e4e0d5] font-mono text-xs text-[#6e6c64]">
-          <div>
-            <p className="font-semibold text-[#1c1b18]">Mara Design Studio</p>
-            <p className="text-[10px] text-[#8f8c82] mt-0.5">Керівник студії / Арт-директор</p>
-            <div className="mt-4 flex items-center gap-3">
-              <span className="font-serif italic text-base text-[#1c1b18]">Mara D.S.</span>
-              <span className="rounded-full border border-[#8f8c82] px-2 py-0.5 text-[8px] uppercase tracking-widest text-[#8f8c82]">
-                SEAL OF APPROVAL
-              </span>
-            </div>
-          </div>
-
-          <div className="text-right text-[10px] text-[#8f8c82]">
-            <p>Дякуємо за співпрацю!</p>
-            <p>Thank you for choosing Mara Studio.</p>
-          </div>
-        </div>
       </div>
 
       {/* Online Payment Checkout Modal */}
@@ -825,6 +969,7 @@ function ProjectInvoiceContent() {
         milestoneId={checkoutModal.milestoneId}
         milestoneTitle={checkoutModal.milestoneTitle}
         paymentModel={invoice.payment_model}
+        recipientDetails={recipient}
       />
     </main>
   );
