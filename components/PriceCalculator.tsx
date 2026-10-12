@@ -15,14 +15,14 @@ const SERVICES: Record<
     titleEn: "3D Visualization",
     descUa: "Фотореалістичні рендери за вашим готовим дизайн-проєктом або планом",
     descEn: "Photorealistic renders based on your ready design project or floor plan",
-    pricePerSqm: 622,
+    pricePerSqm: 550,
   },
   design: {
     titleUa: "Дизайн інтер'єру",
     titleEn: "Interior Design",
     descUa: "Розробка концепції, планування, підбір оздоблення та 3D-моделювання",
     descEn: "Concept design, space planning, material curation & 3D modeling",
-    pricePerSqm: 1037,
+    pricePerSqm: 1120,
   },
   full: {
     titleUa: "Комплексний проєкт",

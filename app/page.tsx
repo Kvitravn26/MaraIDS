@@ -11,23 +11,30 @@ import Link from "next/link";
 
 const PROJECTS: Project[] = [
   {
-    id: "penthouse-modernism",
-    titleUa: "Penthouse Modernism",
-    titleEn: "Penthouse Modernism",
+    id: "crystal-residential-complex",
+    titleUa: "ЖК Кристал",
+    titleEn: "Crystal Residential Complex",
     categoryUa: "Житловий інтер'єр 3D",
     categoryEn: "Residential 3D",
-    year: "2025",
-    area: "180 м²",
-    styleUa: "Сучасний мінімалізм",
-    styleEn: "Modern Minimalism",
+    year: "2026",
+    area: "43 м²",
+    styleUa: "Темний сучасний мінімалізм",
+    styleEn: "Dark Luxury Minimalism",
     clientUa: "Приватний замовник",
     clientEn: "Private Client",
-    descriptionUa: "Просторі апартаменти з використанням натурального світлого дуба, вапняку та стриманих монохромних акцентів. Особливу увагу приділено природному освітленню та тактильним PBR-текстурам.",
-    descriptionEn: "Spacious residence featuring light oak surfaces, natural limestone, and restrained monochromatic accents. Special attention was paid to natural light flow and tactile PBR materiality.",
-    mainImage: "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?q=80&w=1200&auto=format&fit=crop",
+    descriptionUa: "Інтер’єр, побудований на грі світлотіні, глибоких темних відтінках та вишуканих натуральних текстурах. Простір поєднує виразне морене дерево з вертикальною текстурою, акцентний великоформатний керамограніт під темний мармур із золотаво-бронзовими жилами та м’який текстиль нейтральних тонів.\n\nОсобливий характер проєкту створює продумане архітектурне освітлення: приховані LED-лінії, що підкреслюють геометрію меблів, лаконічні магнітні треки та невагомий дизайнерський світильник-арт-об'єкт над обідньою зоною. Це простір для тих, хто цінує тиху розкіш, затишок і бездоганну естетику.\n\nКлючові деталі: Фасади з мореного дуба, мармуровий фартух із підсвічуванням, дизайнерські акцентні стільці, концептуальне монохромне полотно, прихований гардероб та інтегрована техніка.",
+    descriptionEn: "An interior driven by the interplay of light and shadow, deep dark tones, and refined natural textures. The space harmoniously blends rich dark-stained wood with vertical graining, striking large-format dark marble porcelain with golden-bronze veining, and soft neutral-toned textiles.\n\nThe distinct character of the project is shaped by thoughtful architectural lighting: concealed LED accents that highlight clean lines, sleek magnetic track systems, and an ethereal statement chandelier over the dining area. Designed for those who appreciate quiet luxury, warmth, and impeccable aesthetic harmony.\n\nKey details: Dark-stained oak facades, illuminated marble backsplash, custom accent chairs, statement monochrome artwork, seamless hidden storage, and fully integrated appliances.",
+    mainImage: "/projects/Krystal_main.jpg",
     gallery: [
-      "https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?q=80&w=1000&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1000&auto=format&fit=crop"
+      "/projects/Krystal_1.jpg",
+      "/projects/Krystal_2.jpg",
+      "/projects/Krystal_3.jpg",
+      "/projects/Krystal_5.jpg",
+      "/projects/Krystal_6.jpg",
+      "/projects/Krystal_7.jpg",
+      "/projects/Krystal_8.jpeg",
+      "/projects/Krystal_9.jpeg",
+      "/projects/Krystal_10.jpeg",
     ]
   },
   {
@@ -161,9 +168,7 @@ export default function Home() {
 
         <div className="relative z-10 w-full max-w-[1600px] mx-auto">
           <div className="max-w-4xl">
-            <span className="mb-4 inline-block rounded-xs bg-white/80 px-3 py-1 text-xs font-medium uppercase tracking-[0.2em] text-[#8C857B] backdrop-blur-md border border-[#e4e0d5]">
-              {lang === "UA" ? "Студія 3D Архітектури та Дизайну" : "3D Architecture & Interior Studio"}
-            </span>
+            
             <h1 className="font-serif text-4xl font-normal leading-[1.05] text-[#1c1b18] sm:text-6xl md:text-7xl lg:text-8xl">
               {lang === "UA" ? (
                 <>Архітектурна візуалізація <br className="hidden sm:inline" />та <span className="italic font-light">дизайн простору</span></>
@@ -175,8 +180,8 @@ export default function Home() {
             <div className="mt-8 flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-10">
               <p className="max-w-lg text-sm leading-relaxed text-[#4a4943] sm:text-base">
                 {lang === "UA"
-                  ? "Створюємо чисті лінії, природні текстури вапняку й дуба та фотореалістичний простір, який можна відчути ще до початку будівництва."
-                  : "We craft clean lines, natural oak and limestone materiality, and photorealistic spaces that feel tangible long before construction begins."}
+                  ? "Професійний дизайн інтер’єру та 3D-візуалізація преміум-класу. Втілюємо затишок, функціональність та естетику у вашому майбутньому домі."
+                  : "Professional interior design and premium-quality 3D renderings. We bring comfort, functionality, and aesthetics to life in your future home."}
               </p>
               <div className="flex items-center gap-6 text-[11px] font-medium uppercase tracking-[0.18em]">
                 <a
@@ -202,10 +207,10 @@ export default function Home() {
         <div className="mb-10 flex items-end justify-between gap-6 px-5 sm:mb-14 sm:px-8 lg:px-12">
           <div>
             <span className="mb-3 block text-xs font-medium uppercase tracking-[0.2em] text-[#8C857B]">
-              {lang === "UA" ? "Портфоліо · 2025—2026" : "Selected Works · 2025—2026"}
+              {lang === "UA" ? "Наше портфоліо" : "Portfolio "}
             </span>
             <h2 className="font-serif text-3xl font-normal text-[#1c1b18] sm:text-5xl">
-              {lang === "UA" ? "Вибрані простори" : "Selected spaces"}
+              {lang === "UA" ? "Завершені проєкти" : "Completed Projects"}
             </h2>
           </div>
 
@@ -214,14 +219,14 @@ export default function Home() {
             <button
               onClick={() => scrollSlider("left")}
               aria-label={lang === "UA" ? "Попередні проєкти" : "Previous projects"}
-              className="flex size-11 cursor-pointer items-center justify-center rounded-sm border border-[#e4e0d5] bg-white text-base text-[#1c1b18] transition-colors hover:border-[#1c1b18] hover:bg-[#1c1b18] hover:text-white"
+              className="flex size-12 cursor-pointer items-center justify-center rounded-sm border border-[#e4e0d5] bg-white text-base text-[#1c1b18] transition-colors hover:border-[#1c1b18] hover:bg-[#1c1b18] hover:text-white"
             >
               &larr;
             </button>
             <button
               onClick={() => scrollSlider("right")}
               aria-label={lang === "UA" ? "Наступні проєкти" : "Next projects"}
-              className="flex size-11 cursor-pointer items-center justify-center rounded-sm border border-[#e4e0d5] bg-white text-base text-[#1c1b18] transition-colors hover:border-[#1c1b18] hover:bg-[#1c1b18] hover:text-white"
+              className="flex size-12 cursor-pointer items-center justify-center rounded-sm border border-[#e4e0d5] bg-white text-base text-[#1c1b18] transition-colors hover:border-[#1c1b18] hover:bg-[#1c1b18] hover:text-white"
             >
               &rarr;
             </button>

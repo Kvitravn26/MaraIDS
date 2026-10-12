@@ -8,8 +8,8 @@ type ServiceType = "viz" | "design" | "full";
 type CurrencyKey = "UAH" | "USD" | "EUR";
 
 const SERVICES: Record<ServiceType, { title: string; pricePerSqm: number }> = {
-  viz: { title: "3D-Візуалізація", pricePerSqm: 622 },
-  design: { title: "Дизайн інтер'єру", pricePerSqm: 1037 },
+  viz: { title: "3D-Візуалізація", pricePerSqm: 550 },
+  design: { title: "Дизайн інтер'єру", pricePerSqm: 1120 },
   full: { title: "Комплексний проєкт", pricePerSqm: 1452 },
 };
 

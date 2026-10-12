@@ -21,14 +21,14 @@ interface ProjectItem {
 const PROJECTS_DATA: ProjectItem[] = [
   {
     id: "1",
-    titleUa: "Мінімалістична вілла в лісі",
-    titleEn: "Minimalist Forest Villa",
-    category: "architecture",
-    categoryUa: "Архітектура",
-    categoryEn: "Architecture",
+    titleUa: "Апартаменти в ПАР",
+    titleEn: "Apartments in South Africa",
+    category: "interior",
+    categoryUa: "Дизайн інтер'єру",
+    categoryEn: "interior",
     image: "https://lh3.googleusercontent.com/d/15nLUpRboTs-jHjgpHleAhVbeb8efJ-5o",,
-    area: "320 m²",
-    year: "2026",
+    area: "80 m²",
+    year: "2025",
   },
   {
     id: "2",
@@ -146,7 +146,7 @@ export default function Projects() {
   fill
   unoptimized // <-- Додаємо цей рядок
   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-  className="object-cover transition-transform duration-700 ease-out group-hover:scale-105 filter brightness-[0.85] group-hover:brightness-100"
+  className="object-contain transition-transform duration-700 ease-out group-hover:scale-105 filter brightness-[0.85] group-hover:brightness-100"
 />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0b] via-transparent to-transparent opacity-80" />
             </div>

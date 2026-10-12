@@ -86,3 +86,6 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+p {
+  white-space: pre-line;
+}
