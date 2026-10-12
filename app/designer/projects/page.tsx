@@ -26,7 +26,11 @@ export default function DesignerProjectsPage() {
     let active = true;
 
     const loadProjects = async () => {
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
       if (userError || !user) {
         if (active) {
           setError(lang === "UA" ? "Потрібно увійти в акаунт." : "Please sign in.");
@@ -42,8 +46,14 @@ export default function DesignerProjectsPage() {
         .order("created_at", { ascending: false });
 
       if (!active) return;
+
       if (queryError) {
-        setError(queryError.message);
+        console.error("Помилка завантаження проєктів дизайнера:", queryError);
+        setError(
+          lang === "UA"
+            ? "Не вдалося завантажити проєкти. Спробуйте оновити сторінку."
+            : "Could not load projects. Please refresh the page."
+        );
       } else {
         setProjects((data || []) as Project[]);
       }
@@ -51,6 +61,7 @@ export default function DesignerProjectsPage() {
     };
 
     void loadProjects();
+
     return () => {
       active = false;
     };
@@ -67,51 +78,66 @@ export default function DesignerProjectsPage() {
   };
 
   return (
-    <div className="pt-28 pb-16 px-6 max-w-7xl mx-auto text-white">
-      <div className="border-b border-white/10 pb-6 mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="mx-auto max-w-7xl px-5 pb-20 pt-32 text-[#1c1b18] sm:px-8 space-y-8">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 rounded-sm border border-[#e4e0d5] bg-white p-8 sm:p-10 shadow-xs">
         <div>
-          <span className="text-xs font-mono uppercase text-zinc-500">
-            {lang === "UA" ? "Робоче місце візуалізатора" : "Designer Workspace"}
+          <span className="block text-[10px] font-medium uppercase tracking-[0.2em] text-[#8f8c82]">
+            {lang === "UA" ? "Робоче місце 3D-візуалізатора" : "3D Designer Studio Desk"}
           </span>
-          <h1 className="text-2xl font-bold tracking-tight mt-1">
-            {lang === "UA" ? "Проєкти в роботі" : "Assigned Projects"}
+          <h1 className="mt-2 font-serif text-3xl font-normal text-[#1c1b18]">
+            {lang === "UA" ? "Призначені проєкти" : "Assigned Projects"}
           </h1>
+          <p className="mt-2 text-xs text-[#6e6c64]">
+            {lang === "UA"
+              ? "Тут відображаються об'єкти, призначені вам арт-директором для моделювання та рендерингу."
+              : "Projects assigned to you by the art director for 3D modeling and rendering."}
+          </p>
         </div>
       </div>
 
-      {error && <p className="mb-5 text-sm text-red-300">{error}</p>}
+      {error && (
+        <p className="rounded-sm border border-red-200 bg-red-50 p-4 text-xs text-red-700">
+          {error}
+        </p>
+      )}
 
       {loading ? (
-        <p className="py-10 text-sm font-mono text-zinc-500">
-          {lang === "UA" ? "Завантаження проєктів..." : "Loading projects..."}
+        <p className="py-12 text-center font-mono text-xs text-[#8f8c82]">
+          {lang === "UA" ? "Завантаження призначених проєктів..." : "Loading assigned projects..."}
         </p>
       ) : projects.length === 0 ? (
-        <div className="border-y border-white/10 py-12 text-sm text-zinc-500">
-          {lang === "UA" ? "Вам ще не призначили проєкти." : "No projects have been assigned to you yet."}
+        <div className="rounded-sm border border-dashed border-[#e4e0d5] bg-white p-14 text-center text-xs text-[#8f8c82]">
+          {lang === "UA"
+            ? "Вам ще не призначили нових об'єктів. Щойно адміністратор призначить проєкт, він з'явиться тут."
+            : "No projects have been assigned to you yet. Newly assigned spaces will appear here."}
         </div>
       ) : (
-        <div className="divide-y divide-white/10 border-y border-white/10">
+        <div className="divide-y divide-[#e4e0d5] rounded-sm border border-[#e4e0d5] bg-white shadow-xs">
           {projects.map((project) => (
             <Link
               key={project.id}
               href={`/project-workspace/${project.id}`}
-              className="grid grid-cols-1 gap-3 py-5 transition hover:bg-white/3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:px-3"
+              className="grid grid-cols-1 gap-4 p-6 transition-colors hover:bg-[#faf8f5] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
             >
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-3">
-                  <h2 className="truncate text-base font-semibold">{project.title}</h2>
-                  <span className="rounded border border-cyan-300/20 bg-cyan-300/10 px-2 py-1 text-[10px] text-cyan-200">
+                  <h2 className="truncate font-serif text-lg font-normal text-[#1c1b18]">
+                    {project.title}
+                  </h2>
+                  <span className="rounded-xs border border-[#e4e0d5] bg-[#f4f0e8] px-2.5 py-0.5 font-mono text-[10px] text-[#1c1b18]">
                     {statusLabel(project.status)}
                   </span>
                 </div>
-                <p className="mt-2 text-xs text-zinc-400">
-                  {lang === "UA" ? "Клієнт" : "Client"}: {project.client_name}
+                <p className="mt-2 text-xs text-[#6e6c64]">
+                  {lang === "UA" ? "Замовник" : "Client"}: {project.client_name}
                   {` · ${project.area} м² · `}
                   {new Date(project.created_at).toLocaleDateString(lang === "UA" ? "uk-UA" : "en-US")}
                 </p>
               </div>
-              <span className="text-xs text-zinc-300">
-                {lang === "UA" ? "Відкрити робочу зону →" : "Open workspace →"}
+
+              <span className="font-mono text-xs font-medium text-[#1c1b18] hover:underline">
+                {lang === "UA" ? "Відкрити робочу зону →" : "Open Workspace →"}
               </span>
             </Link>
           ))}

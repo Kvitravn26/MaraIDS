@@ -114,12 +114,15 @@ with check (
 );
 
 drop policy if exists "Admins update project requests" on public.client_project_requests;
-create policy "Admins update project requests"
+drop policy if exists "Project participants update project requests" on public.client_project_requests;
+create policy "Project participants update project requests"
 on public.client_project_requests
 for update
 to authenticated
 using (
-  exists (
+  client_id = auth.uid()
+  or designer_id = auth.uid()
+  or exists (
     select 1
     from public.profiles
     where profiles.id = auth.uid()
@@ -127,7 +130,9 @@ using (
   )
 )
 with check (
-  exists (
+  client_id = auth.uid()
+  or designer_id = auth.uid()
+  or exists (
     select 1
     from public.profiles
     where profiles.id = auth.uid()

@@ -1,22 +1,7 @@
 "use client";
-import Link from "next/link";
 
-// У верхній частині сторінки адміна:
-<div className="flex gap-3 font-mono text-xs mb-6">
-  <Link
-    href="/admin/projects"
-    className="bg-white text-black font-semibold px-4 py-2 rounded-xl transition"
-  >
-    🏗️ Управління проєктами & ТЗ
-  </Link>
-  <Link
-    href="/admin/leads"
-    className="bg-zinc-900 text-zinc-400 hover:text-white border border-white/10 px-4 py-2 rounded-xl transition"
-  >
-    📋 Заявки з калькулятора (Leads)
-  </Link>
-</div>
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useApp } from "@/context/AppContext";
 import { supabase } from "@/lib/supabase";
 import { PROJECT_FILES_BUCKET } from "@/lib/projectStorage";
@@ -58,6 +43,21 @@ interface DesignerProfile {
   email?: string;
 }
 
+const STATUS_LABELS: Record<Project["status"], { UA: string; EN: string }> = {
+  PENDING_APPROVAL: { UA: "На затвердженні", EN: "Pending approval" },
+  AWAITING_DESIGNER: { UA: "Очікує дизайнера", EN: "Awaiting designer" },
+  IN_PROGRESS: { UA: "В роботі", EN: "In progress" },
+  IN_REVIEW: { UA: "На перевірці", EN: "In review" },
+  COMPLETED: { UA: "Завершено", EN: "Completed" },
+  AWAITING_PAYMENT: { UA: "Очікує оплати", EN: "Awaiting payment" },
+};
+
+const PROPERTY_TYPE_LABELS: Record<string, { UA: string; EN: string }> = {
+  apartment: { UA: "Квартира", EN: "Apartment" },
+  house: { UA: "Будинок", EN: "House" },
+  commercial: { UA: "Комерційне приміщення", EN: "Commercial space" },
+};
+
 export default function AdminProjectsPage() {
   const { lang } = useApp();
 
@@ -66,22 +66,20 @@ export default function AdminProjectsPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"pending" | "all">("pending");
 
-  // Фільтри для секції "Усі проєкти"
+  // Filters for "All projects"
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [designerFilter, setDesignerFilter] = useState<string>("ALL");
 
-  // Модальне вікно призначення дизайнера для нових ТЗ
+  // Assign modal
   const [assignModalProject, setAssignModalProject] = useState<Project | null>(null);
   const [selectedDesignerId, setSelectedDesignerId] = useState<string>("");
 
-  // Детальна сторінка (модальне вікно або вигляд перебігу подій) обраного проєкту
+  // Timeline / Details modal
   const [detailsProject, setDetailsProject] = useState<Project | null>(null);
 
-  // Завантаження даних із Supabase
   const fetchData = async () => {
     setLoading(true);
     try {
-      // 1. Отримуємо проєкти
       const { data: projData, error: projError } = await supabase
         .from("client_project_requests")
         .select("*")
@@ -115,7 +113,6 @@ export default function AdminProjectsPage() {
         setProjects(projectsWithFileUrls as Project[]);
       }
 
-      // 2. Отримуємо список дизайнерів з профілів
       const { data: desData, error: desError } = await supabase
         .from("profiles")
         .select("id, full_name")
@@ -134,7 +131,6 @@ export default function AdminProjectsPage() {
     fetchData();
   }, []);
 
-  // Призначення дизайнера та затвердження ТЗ
   const handleAssignDesigner = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!assignModalProject || !selectedDesignerId) return;
@@ -144,7 +140,7 @@ export default function AdminProjectsPage() {
         .from("client_project_requests")
         .update({
           designer_id: selectedDesignerId,
-          status: "IN_PROGRESS", // Змінюємо статус на "В роботі"
+          status: "IN_PROGRESS",
         })
         .eq("id", assignModalProject.id);
 
@@ -156,12 +152,15 @@ export default function AdminProjectsPage() {
       fetchData();
     } catch (err) {
       console.error("Помилка призначення:", err);
-      alert("Помилка при збереженні. Спробуйте ще раз.");
+      alert(
+        lang === "UA"
+          ? "Не вдалося зберегти призначення. Спробуйте ще раз."
+          : "Could not save the assignment. Please try again."
+      );
     }
   };
 
-  // Зміна статусу проєкту адміністратором
-  const handleStatusChange = async (projectId: string, newStatus: Project['status']) => {
+  const handleStatusChange = async (projectId: string, newStatus: Project["status"]) => {
     try {
       const { error } = await supabase
         .from("client_project_requests")
@@ -180,7 +179,6 @@ export default function AdminProjectsPage() {
     }
   };
 
-  // Фільтрація проєктів
   const pendingProjects = projects.filter(
     (p) => p.status === "PENDING_APPROVAL" || p.status === "AWAITING_DESIGNER"
   );
@@ -193,109 +191,137 @@ export default function AdminProjectsPage() {
 
   if (loading) {
     return (
-      <div className="pt-32 pb-16 px-6 max-w-7xl mx-auto text-zinc-500 font-mono text-xs">
+      <div className="mx-auto max-w-7xl px-5 pb-20 pt-32 font-mono text-xs text-[#8f8c82]">
         {lang === "UA" ? "Завантаження панелі управління..." : "Loading admin panel..."}
       </div>
     );
   }
 
   return (
-    <div className="pt-28 pb-20 px-6 max-w-7xl mx-auto text-white font-sans space-y-8">
-      {/* Шапка адмін-панелі */}
-      <div className="border-b border-white/10 pb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="mx-auto max-w-7xl px-5 pb-20 pt-32 text-[#1c1b18] space-y-8 sm:px-8">
+      {/* Navigation Tabs */}
+      <div className="flex gap-3 font-mono text-xs">
+        <Link
+          href="/admin/projects"
+          className="rounded-sm bg-[#1c1b18] px-4 py-2 font-medium text-white transition-colors"
+        >
+          🏗️ {lang === "UA" ? "Управління проєктами & ТЗ" : "Manage Projects & Specs"}
+        </Link>
+        <Link
+          href="/admin/leads"
+          className="rounded-sm border border-[#e4e0d5] bg-white px-4 py-2 font-medium text-[#1c1b18] hover:bg-[#faf8f5] transition-colors"
+        >
+          📋 {lang === "UA" ? "Заявки з калькулятора (Leads)" : "Calculator Inquiries (Leads)"}
+        </Link>
+      </div>
+
+      {/* Header Bar */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 rounded-sm border border-[#e4e0d5] bg-white p-8 sm:p-10 shadow-xs">
         <div>
-          <span className="text-xs font-mono uppercase text-zinc-500">
-            {lang === "UA" ? "Панель управління студією" : "Studio Control Center"}
+          <span className="block text-[10px] font-medium uppercase tracking-[0.2em] text-[#8f8c82]">
+            {lang === "UA" ? "Панель управління студією" : "Studio Management Control"}
           </span>
-          <h1 className="text-2xl font-bold tracking-tight mt-1">
-            {lang === "UA" ? "Кабінет Адміністратора" : "Admin Dashboard"}
+          <h1 className="mt-2 font-serif text-3xl font-normal text-[#1c1b18]">
+            {lang === "UA" ? "Кабінет Арт-Директора / Адміністратора" : "Admin & Art Director Desk"}
           </h1>
         </div>
 
-        {/* Перемикач основних вкладок */}
-        <div className="flex items-center bg-[#121214] border border-white/10 rounded-xl p-1 font-mono text-xs">
+        {/* Tab switch */}
+        <div className="flex items-center rounded-sm border border-[#e4e0d5] bg-[#faf8f5] p-1 font-mono text-xs">
           <button
             onClick={() => setActiveTab("pending")}
-            className={`px-4 py-2 rounded-lg transition relative ${
-              activeTab === "pending" ? "bg-white text-black font-semibold" : "text-zinc-400 hover:text-white"
+            className={`cursor-pointer rounded-xs px-4 py-2 transition-all ${
+              activeTab === "pending"
+                ? "bg-[#1c1b18] font-medium text-white shadow-xs"
+                : "text-[#6e6c64] hover:text-[#1c1b18]"
             }`}
           >
-            {lang === "UA" ? "Нові ТЗ на затвердженні" : "Pending Specs"}
+            {lang === "UA" ? "Нові ТЗ" : "Pending Briefs"}
             {pendingProjects.length > 0 && (
-              <span className="ml-2 bg-amber-500 text-black px-1.5 py-0.2 rounded-full text-[10px] font-bold">
+              <span className="ml-2 rounded-full bg-[#1c1b18] border border-white/40 px-1.5 py-0.2 text-[10px] font-bold text-white">
                 {pendingProjects.length}
               </span>
             )}
           </button>
           <button
             onClick={() => setActiveTab("all")}
-            className={`px-4 py-2 rounded-lg transition ${
-              activeTab === "all" ? "bg-white text-black font-semibold" : "text-zinc-400 hover:text-white"
+            className={`cursor-pointer rounded-xs px-4 py-2 transition-all ${
+              activeTab === "all"
+                ? "bg-[#1c1b18] font-medium text-white shadow-xs"
+                : "text-[#6e6c64] hover:text-[#1c1b18]"
             }`}
           >
-            {lang === "UA" ? "Усі проєкти студії" : "All Studio Projects"}
+            {lang === "UA" ? "Всі проєкти" : "All Projects"}
           </button>
         </div>
       </div>
 
-      {/* РОЗДІЛ 1: Нові ТЗ на затвердженні та призначення дизайнера */}
+      {/* TAB 1: Pending Projects */}
       {activeTab === "pending" && (
         <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xs font-mono uppercase text-zinc-400 tracking-wider">
-              {lang === "UA" ? "Вхідні заявки та ТЗ від клієнтів (очікують призначення)" : "Incoming Client Specifications"}
-            </h2>
-          </div>
+          <h2 className="text-xs font-semibold uppercase tracking-[0.16em] text-[#1c1b18]">
+            {lang === "UA" ? "Нові ТЗ від клієнтів (очікують затвердження)" : "Incoming Client Briefs Awaiting Assignment"}
+          </h2>
 
           {pendingProjects.length === 0 ? (
-            <div className="bg-[#121214] border border-white/5 rounded-2xl p-12 text-center text-zinc-500 font-mono text-xs">
-              {lang === "UA" ? "Немає нових проєктів, що очікують затвердження." : "No pending projects found."}
+            <div className="rounded-sm border border-dashed border-[#e4e0d5] bg-white p-14 text-center font-mono text-xs text-[#8f8c82]">
+              {lang === "UA" ? "Немає нових проєктів, що очікують призначення." : "No pending projects found."}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {pendingProjects.map((p) => (
-                <div key={p.id} className="bg-[#121214] border border-white/10 rounded-2xl p-6 space-y-4">
+                <div key={p.id} className="rounded-sm border border-[#e4e0d5] bg-white p-6 sm:p-8 space-y-4 shadow-xs">
                   <div className="flex justify-between items-start">
                     <div>
-                      <span className="text-[10px] font-mono uppercase text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded">
+                      <span className="rounded-xs border border-[#e4e0d5] bg-[#f4f0e8] px-2 py-0.5 font-mono text-[10px] uppercase font-medium text-[#1c1b18]">
                         {lang === "UA" ? "Очікує призначення" : "Awaiting Designer"}
                       </span>
-                      <h3 className="text-lg font-bold mt-2">{p.title}</h3>
+                      <h3 className="mt-2.5 font-serif text-xl font-normal text-[#1c1b18]">{p.title}</h3>
                     </div>
-                    <span className="text-xs font-mono text-zinc-500">{new Date(p.created_at).toLocaleDateString()}</span>
+                    <span className="font-mono text-xs text-[#8f8c82]">
+                      {new Date(p.created_at).toLocaleDateString(lang === "UA" ? "uk-UA" : "en-US")}
+                    </span>
                   </div>
 
-                  <div className="text-xs font-mono text-zinc-400 space-y-1 bg-black/40 p-3 rounded-xl border border-white/5">
-                    <p>Клієнт: <span className="text-white">{p.client_name}</span> ({p.client_email})</p>
-                    <p>Тип: <span className="text-white">{p.property_type}</span> | Площа: <span className="text-white">{p.area} м²</span></p>
-                    <p className="pt-2 text-zinc-300">ТЗ: {p.description || "Без опису"}</p>
+                  <div className="space-y-1.5 rounded-sm border border-[#e4e0d5] bg-[#faf8f5] p-4 text-xs font-mono text-[#4a4943]">
+                    <p>
+                      {lang === "UA" ? "Клієнт" : "Client"}: <span className="font-semibold text-[#1c1b18]">{p.client_name}</span> ({p.client_email})
+                    </p>
+                    <p>
+                      {lang === "UA" ? "Тип" : "Type"}: {PROPERTY_TYPE_LABELS[p.property_type]?.[lang] || p.property_type} | {lang === "UA" ? "Площа" : "Area"}: {p.area} m²
+                    </p>
+                    <p className="pt-2 border-t border-[#e4e0d5]">
+                      {lang === "UA" ? "ТЗ" : "Brief"}: {p.description || (lang === "UA" ? "Без опису" : "No description")}
+                    </p>
                   </div>
 
                   {p.files && p.files.length > 0 && (
-                    <div className="text-xs font-mono text-zinc-400">
-                      <span>Файли: </span>
-                      {p.files.map((f, i) => (
+                    <div className="text-xs font-mono text-[#6e6c64]">
+                      <span className="font-semibold text-[#1c1b18]">{lang === "UA" ? "Файли" : "Files"}: </span>
+                      {p.files.map((f, i) =>
                         f.url ? (
                           <a
                             key={i}
                             href={f.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-white underline mr-2"
+                            className="mr-3 text-[#1c1b18] underline hover:no-underline"
                           >
                             📎 {f.name}
                           </a>
                         ) : (
-                          <span key={i} className="text-zinc-500 mr-2">📎 {f.name}</span>
+                          <span key={i} className="mr-3 text-[#8f8c82]">
+                            📎 {f.name}
+                          </span>
                         )
-                      ))}
+                      )}
                     </div>
                   )}
 
-                  <div className="pt-2 flex justify-end">
+                  <div className="pt-3 border-t border-[#e4e0d5] flex justify-end">
                     <button
                       onClick={() => setAssignModalProject(p)}
-                      className="bg-white text-black font-semibold px-4 py-2.5 rounded-xl text-xs uppercase tracking-wider hover:bg-zinc-200 transition cursor-pointer font-mono"
+                      className="cursor-pointer rounded-sm bg-[#1c1b18] px-5 py-2.5 text-xs font-medium uppercase tracking-[0.14em] text-white transition-colors hover:bg-[#33312c]"
                     >
                       {lang === "UA" ? "Затвердити та призначити дизайнера →" : "Approve & Assign Designer →"}
                     </button>
@@ -307,19 +333,19 @@ export default function AdminProjectsPage() {
         </div>
       )}
 
-      {/* РОЗДІЛ 2: Усі проєкти студії */}
+      {/* TAB 2: All Projects Table */}
       {activeTab === "all" && (
         <div className="space-y-6">
-          {/* Панель фільтрів */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-between items-center bg-[#121214] p-4 rounded-2xl border border-white/5 font-mono text-xs">
+          {/* Filters Bar */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-between items-center rounded-sm border border-[#e4e0d5] bg-white p-4 font-mono text-xs shadow-xs">
             <div className="flex items-center gap-3 w-full sm:w-auto">
-              <span>{lang === "UA" ? "Статус:" : "Status:"}</span>
+              <span className="text-[#6e6c64]">{lang === "UA" ? "Статус:" : "Status:"}</span>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="bg-black border border-white/10 px-3 py-2 rounded-xl text-white focus:outline-none"
+                className="rounded-sm border border-[#e4e0d5] bg-[#faf8f5] px-3 py-2 text-[#1c1b18] focus:border-[#1c1b18] focus:outline-none"
               >
-                <option value="ALL">{lang === "UA" ? "Усі статуси" : "All Statuses"}</option>
+                <option value="ALL">{lang === "UA" ? "Всі статуси" : "All Statuses"}</option>
                 <option value="IN_PROGRESS">{lang === "UA" ? "В роботі" : "In Progress"}</option>
                 <option value="IN_REVIEW">{lang === "UA" ? "На перевірці" : "In Review"}</option>
                 <option value="COMPLETED">{lang === "UA" ? "Завершено" : "Completed"}</option>
@@ -328,13 +354,13 @@ export default function AdminProjectsPage() {
             </div>
 
             <div className="flex items-center gap-3 w-full sm:w-auto">
-              <span>{lang === "UA" ? "Дизайнер:" : "Designer:"}</span>
+              <span className="text-[#6e6c64]">{lang === "UA" ? "Дизайнер:" : "Designer:"}</span>
               <select
                 value={designerFilter}
                 onChange={(e) => setDesignerFilter(e.target.value)}
-                className="bg-black border border-white/10 px-3 py-2 rounded-xl text-white focus:outline-none"
+                className="rounded-sm border border-[#e4e0d5] bg-[#faf8f5] px-3 py-2 text-[#1c1b18] focus:border-[#1c1b18] focus:outline-none"
               >
-                <option value="ALL">{lang === "UA" ? "Усі дизайнери" : "All Designers"}</option>
+                <option value="ALL">{lang === "UA" ? "Всі дизайнери" : "All Designers"}</option>
                 {designers.map((d) => (
                   <option key={d.id} value={d.id}>
                     {d.full_name || d.email}
@@ -344,61 +370,61 @@ export default function AdminProjectsPage() {
             </div>
           </div>
 
-          {/* Таблиця всіх проєктів */}
-          <div className="bg-[#121214] border border-white/10 rounded-2xl overflow-hidden">
+          {/* Projects Table */}
+          <div className="overflow-hidden rounded-sm border border-[#e4e0d5] bg-white shadow-xs">
             <table className="w-full text-left text-xs font-mono">
-              <thead className="bg-black/60 border-b border-white/10 text-zinc-400">
+              <thead className="border-b border-[#e4e0d5] bg-[#faf8f5] text-[#6e6c64]">
                 <tr>
                   <th className="p-4">{lang === "UA" ? "Проєкт" : "Project"}</th>
                   <th className="p-4">{lang === "UA" ? "Клієнт" : "Client"}</th>
                   <th className="p-4">{lang === "UA" ? "Дизайнер" : "Designer"}</th>
                   <th className="p-4">{lang === "UA" ? "Площа" : "Area"}</th>
                   <th className="p-4">{lang === "UA" ? "Статус" : "Status"}</th>
-                  <th className="p-4 text-right">{lang === "UA" ? "Дії / Події" : "Actions / Timeline"}</th>
+                  <th className="p-4 text-right">{lang === "UA" ? "Перебіг подій" : "Timeline"}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody className="divide-y divide-[#e4e0d5]">
                 {filteredAllProjects.map((p) => {
                   const assignedDes = designers.find((d) => d.id === p.designer_id);
                   return (
-                    <tr key={p.id} className="hover:bg-zinc-900/40 transition">
-                      <td className="p-4 font-bold text-white">
+                    <tr key={p.id} className="transition-colors hover:bg-[#faf8f5]">
+                      <td className="p-4 font-medium text-[#1c1b18]">
                         <div>{p.title}</div>
-                        <div className="text-[10px] text-zinc-500">ID: {p.id.slice(0, 8)}...</div>
+                        <div className="text-[10px] text-[#8f8c82]">ID: {p.id.slice(0, 8)}</div>
                       </td>
-                      <td className="p-4 text-zinc-300">
+                      <td className="p-4 text-[#4a4943]">
                         <div>{p.client_name}</div>
-                        <div className="text-[10px] text-zinc-500">{p.client_email}</div>
+                        <div className="text-[10px] text-[#8f8c82]">{p.client_email}</div>
                       </td>
-                      <td className="p-4 text-zinc-300">
+                      <td className="p-4 text-[#4a4943]">
                         {assignedDes ? (
-                          <span className="text-purple-400 bg-purple-500/10 px-2 py-1 rounded border border-purple-500/20">
-                            {assignedDes.full_name || assignedDes.email || assignedDes.id}
+                          <span className="rounded-xs border border-[#e4e0d5] bg-[#f4f0e8] px-2 py-0.5 text-[#1c1b18]">
+                            {assignedDes.full_name || assignedDes.email}
                           </span>
                         ) : (
-                          <span className="text-amber-400">Не призначено</span>
+                          <span className="text-[#8f8c82]">{lang === "UA" ? "Не призначено" : "Unassigned"}</span>
                         )}
                       </td>
-                      <td className="p-4">{p.area} м²</td>
+                      <td className="p-4 text-[#1c1b18]">{p.area} м²</td>
                       <td className="p-4">
                         <select
                           value={p.status}
-                          onChange={(e) => handleStatusChange(p.id, e.target.value as Project['status'])}
-                          className="bg-black border border-white/10 px-2 py-1 rounded text-[11px] text-white focus:outline-none"
+                          onChange={(e) => handleStatusChange(p.id, e.target.value as Project["status"])}
+                          className="rounded-xs border border-[#e4e0d5] bg-[#faf8f5] px-2 py-1 text-[11px] text-[#1c1b18] focus:border-[#1c1b18] focus:outline-none"
                         >
-                          <option value="PENDING_APPROVAL">На затвердженні</option>
-                          <option value="IN_PROGRESS">В роботі</option>
-                          <option value="IN_REVIEW">На перевірці</option>
-                          <option value="COMPLETED">Завершено</option>
-                          <option value="AWAITING_PAYMENT">Очікує оплати</option>
+                          <option value="PENDING_APPROVAL">{STATUS_LABELS.PENDING_APPROVAL[lang]}</option>
+                          <option value="IN_PROGRESS">{STATUS_LABELS.IN_PROGRESS[lang]}</option>
+                          <option value="IN_REVIEW">{STATUS_LABELS.IN_REVIEW[lang]}</option>
+                          <option value="COMPLETED">{STATUS_LABELS.COMPLETED[lang]}</option>
+                          <option value="AWAITING_PAYMENT">{STATUS_LABELS.AWAITING_PAYMENT[lang]}</option>
                         </select>
                       </td>
                       <td className="p-4 text-right">
                         <button
                           onClick={() => setDetailsProject(p)}
-                          className="px-3 py-1.5 bg-white text-black font-semibold rounded-lg text-[10px] uppercase hover:bg-zinc-200 transition cursor-pointer"
+                          className="cursor-pointer rounded-xs border border-[#e4e0d5] bg-white px-3 py-1.5 text-[10px] uppercase font-medium text-[#1c1b18] hover:border-[#1c1b18] hover:bg-[#1c1b18] hover:text-white transition-colors"
                         >
-                          {lang === "UA" ? "Перебіг подій →" : "Timeline →"}
+                          {lang === "UA" ? "Історія →" : "Timeline →"}
                         </button>
                       </td>
                     </tr>
@@ -410,30 +436,34 @@ export default function AdminProjectsPage() {
         </div>
       )}
 
-      {/* МОДАЛЬНЕ ВІКНО: Призначення дизайнера */}
+      {/* MODAL: Assign Designer */}
       {assignModalProject && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#121214] border border-white/10 p-8 rounded-2xl max-w-md w-full space-y-6 text-white font-mono">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1c1b18]/60 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md space-y-6 rounded-sm border border-[#e4e0d5] bg-white p-8 text-[#1c1b18] shadow-2xl">
             <div>
-              <span className="text-xs text-zinc-500 uppercase">Затвердження ТЗ</span>
-              <h3 className="text-lg font-bold mt-1">{assignModalProject.title}</h3>
+              <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#8f8c82]">
+                {lang === "UA" ? "Затвердження ТЗ" : "Approve Brief"}
+              </span>
+              <h3 className="mt-1 font-serif text-2xl font-normal text-[#1c1b18]">
+                {assignModalProject.title}
+              </h3>
             </div>
 
-            <form onSubmit={handleAssignDesigner} className="space-y-4">
+            <form onSubmit={handleAssignDesigner} className="space-y-5">
               <div>
-                <label className="block text-xs uppercase text-zinc-400 mb-2">
-                  {lang === "UA" ? "Оберіть дизайнера для роботи:" : "Select Designer:"}
+                <label className="mb-2 block text-xs font-mono uppercase text-[#6e6c64]">
+                  {lang === "UA" ? "Оберіть 3D-візуалізатора для проєкту:" : "Assign 3D Designer:"}
                 </label>
                 <select
                   required
                   value={selectedDesignerId}
                   onChange={(e) => setSelectedDesignerId(e.target.value)}
-                  className="w-full bg-black border border-white/10 p-3 rounded-xl text-xs text-white focus:outline-none"
+                  className="w-full rounded-sm border border-[#e4e0d5] bg-[#faf8f5] p-3 text-xs text-[#1c1b18] focus:border-[#1c1b18] focus:outline-none"
                 >
-                  <option value="">-- {lang === "UA" ? "Оберіть зі списку" : "Choose designer"} --</option>
+                  <option value="">-- {lang === "UA" ? "Оберіть дизайнера" : "Select designer"} --</option>
                   {designers.map((d) => (
                     <option key={d.id} value={d.id}>
-                      {d.full_name || d.email || d.id}
+                      {d.full_name || d.email}
                     </option>
                   ))}
                 </select>
@@ -443,13 +473,13 @@ export default function AdminProjectsPage() {
                 <button
                   type="button"
                   onClick={() => setAssignModalProject(null)}
-                  className="w-1/2 bg-zinc-800 text-white font-semibold py-3 rounded-xl text-xs uppercase hover:bg-zinc-700 transition cursor-pointer"
+                  className="w-1/2 cursor-pointer rounded-sm border border-[#e4e0d5] py-3 text-xs font-medium uppercase tracking-wider text-[#6e6c64] hover:bg-[#faf8f5]"
                 >
                   {lang === "UA" ? "Скасувати" : "Cancel"}
                 </button>
                 <button
                   type="submit"
-                  className="w-1/2 bg-white text-black font-semibold py-3 rounded-xl text-xs uppercase hover:bg-zinc-200 transition cursor-pointer"
+                  className="w-1/2 cursor-pointer rounded-sm bg-[#1c1b18] py-3 text-xs font-medium uppercase tracking-wider text-white hover:bg-[#33312c]"
                 >
                   {lang === "UA" ? "Підтвердити" : "Confirm"}
                 </button>
@@ -459,80 +489,87 @@ export default function AdminProjectsPage() {
         </div>
       )}
 
-      {/* МОДАЛЬНЕ ВІКНО: Перебіг подій та історія проєкту */}
+      {/* MODAL: Timeline & Details */}
       {detailsProject && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-[#121214] border border-white/10 p-8 rounded-2xl max-w-2xl w-full space-y-6 text-white font-mono my-8">
-            <div className="flex justify-between items-start border-b border-white/10 pb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-[#1c1b18]/60 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-2xl space-y-6 rounded-sm border border-[#e4e0d5] bg-white p-8 text-[#1c1b18] shadow-2xl my-8">
+            <div className="flex items-start justify-between border-b border-[#e4e0d5] pb-4">
               <div>
-                <span className="text-[10px] uppercase text-zinc-500">Перебіг подій проєкту</span>
-                <h3 className="text-xl font-bold mt-1">{detailsProject.title}</h3>
-                <p className="text-xs text-zinc-400 mt-1">Клієнт: {detailsProject.client_name}</p>
+                <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#8f8c82]">
+                  {lang === "UA" ? "Перебіг подій проєкту" : "Project Timeline"}
+                </span>
+                <h3 className="mt-1 font-serif text-2xl font-normal text-[#1c1b18]">
+                  {detailsProject.title}
+                </h3>
+                <p className="mt-1 text-xs text-[#6e6c64]">
+                  {lang === "UA" ? "Замовник" : "Client"}: {detailsProject.client_name}
+                </p>
               </div>
               <button
                 onClick={() => setDetailsProject(null)}
-                className="text-zinc-400 hover:text-white text-sm bg-black/50 px-3 py-1 rounded-lg border border-white/10"
+                className="cursor-pointer rounded-xs border border-[#e4e0d5] bg-[#faf8f5] px-3 py-1 text-xs text-[#1c1b18] hover:bg-[#1c1b18] hover:text-white"
               >
                 ✕
               </button>
             </div>
 
-            {/* ТЗ та вихідні дані */}
-            <div className="space-y-2">
-              <h4 className="text-xs uppercase text-zinc-400 tracking-wider">1. Технічне завдання (ТЗ)</h4>
-              <div className="bg-black/40 p-4 rounded-xl border border-white/5 text-xs text-zinc-300 space-y-2">
-                <p>{detailsProject.description || "Коментарі до ТЗ відсутні."}</p>
+            <div className="space-y-4 text-xs font-mono">
+              <div className="rounded-sm border border-[#e4e0d5] bg-[#faf8f5] p-4 space-y-2">
+                <span className="font-semibold text-[#1c1b18] block uppercase text-[10px] tracking-wider">
+                  {lang === "UA" ? "1. Технічне завдання" : "1. Specifications"}
+                </span>
+                <p className="text-[#4a4943] leading-relaxed">
+                  {detailsProject.description || (lang === "UA" ? "Опис відсутній." : "No brief provided.")}
+                </p>
                 {detailsProject.files && detailsProject.files.length > 0 && (
-                  <div className="pt-2 border-t border-white/5">
-                    <span className="text-zinc-500">Прикріплені файли: </span>
-                    {detailsProject.files.map((f, i) => (
+                  <div className="pt-2 border-t border-[#e4e0d5]">
+                    <span className="text-[#8f8c82]">{lang === "UA" ? "Файли" : "Files"}: </span>
+                    {detailsProject.files.map((f, i) =>
                       f.url ? (
                         <a
                           key={i}
                           href={f.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-white underline mr-3"
+                          className="mr-3 text-[#1c1b18] underline hover:no-underline"
                         >
                           📎 {f.name}
                         </a>
                       ) : (
-                        <span key={i} className="text-zinc-500 mr-3">📎 {f.name}</span>
+                        <span key={i} className="mr-3 text-[#8f8c82]">📎 {f.name}</span>
                       )
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="rounded-sm border border-[#e4e0d5] bg-[#faf8f5] p-4 space-y-2">
+                <span className="font-semibold text-[#1c1b18] block uppercase text-[10px] tracking-wider">
+                  {lang === "UA" ? "2. Історія рендерів" : "2. Renders History"}
+                </span>
+                {detailsProject.versions && detailsProject.versions.length > 0 ? (
+                  <div className="space-y-2">
+                    {detailsProject.versions.map((v) => (
+                      <div key={v.id} className="flex justify-between rounded-xs bg-white p-2.5 border border-[#e4e0d5]">
+                        <span className="font-medium text-[#1c1b18]">{v.version}: {v.comment}</span>
+                        <span className="text-[#8f8c82]">{v.createdAt}</span>
+                      </div>
                     ))}
                   </div>
+                ) : (
+                  <p className="text-[#8f8c82]">
+                    {lang === "UA" ? "Дизайнер ще не завантажував версії рендерів." : "No render versions uploaded yet."}
+                  </p>
                 )}
               </div>
             </div>
 
-            {/* Історія версій рендерів від дизайнера */}
-            <div className="space-y-2">
-              <h4 className="text-xs uppercase text-zinc-400 tracking-wider">2. Історія версій рендерів</h4>
-              {detailsProject.versions && detailsProject.versions.length > 0 ? (
-                <div className="space-y-2">
-                  {detailsProject.versions.map((v) => (
-                    <div key={v.id} className="bg-black/50 p-3 rounded-xl border border-white/5 flex justify-between items-center text-xs">
-                      <div>
-                        <span className="font-bold text-white mr-2">{v.version}</span>
-                        <span className="text-zinc-400">{v.comment || "Без коментаря"}</span>
-                      </div>
-                      <span className="text-[10px] text-zinc-500">{v.createdAt}</span>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="bg-black/40 p-4 rounded-xl border border-white/5 text-xs text-zinc-500 text-center">
-                  Дизайнер ще не завантажував версії рендерів.
-                </div>
-              )}
-            </div>
-
-            <div className="pt-4 border-t border-white/10 flex justify-end">
+            <div className="flex justify-end border-t border-[#e4e0d5] pt-4">
               <button
                 onClick={() => setDetailsProject(null)}
-                className="bg-white text-black font-semibold px-6 py-3 rounded-xl text-xs uppercase hover:bg-zinc-200 transition cursor-pointer"
+                className="cursor-pointer rounded-sm bg-[#1c1b18] px-6 py-2.5 text-xs font-medium uppercase tracking-wider text-white hover:bg-[#33312c]"
               >
-                Закрити
+                {lang === "UA" ? "Закрити" : "Close"}
               </button>
             </div>
           </div>

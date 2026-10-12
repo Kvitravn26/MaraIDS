@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { useApp } from "@/context/AppContext";
 
 export default function TestDbPage() {
-  const [status, setStatus] = useState<string>("Тестування запису в базу...");
+  const { lang } = useApp();
+  const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
 
   useEffect(() => {
     async function testInsert() {
@@ -24,10 +26,10 @@ export default function TestDbPage() {
           throw error;
         }
 
-        setStatus("Успішно! Тестовий лід успішно записано в базу даних через RLS!");
-      } catch (err: any) {
+        setStatus("success");
+      } catch (err: unknown) {
         console.error("Помилка:", err);
-        setStatus(`Помилка запису: ${err.message}`);
+        setStatus("error");
       }
     }
 
@@ -35,11 +37,17 @@ export default function TestDbPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#070708] text-white flex flex-col items-center justify-center p-6 font-mono">
-      <div className="bg-zinc-900 border border-white/10 p-8 rounded-xl max-w-md w-full text-center space-y-4">
-        <h1 className="text-lg font-bold">Тест бази даних Supabase</h1>
-        <p className="text-sm text-zinc-400">{status}</p>
+    <main className="flex min-h-screen flex-col items-center justify-center bg-[#070708] px-5 py-12 text-white">
+      <div className="w-full max-w-md space-y-4 border border-white/10 bg-zinc-900 p-8 text-center">
+        <h1 className="text-lg font-medium">{lang === "UA" ? "Перевірка бази даних" : "Database check"}</h1>
+        <p className="text-sm text-zinc-500">
+          {status === "loading"
+            ? lang === "UA" ? "Перевіряємо підключення..." : "Checking the connection..."
+            : status === "success"
+            ? lang === "UA" ? "Запис тестового ліда успішний." : "Test lead inserted successfully."
+            : lang === "UA" ? "Не вдалося записати тестовий лід." : "Could not insert the test lead."}
+        </p>
       </div>
-    </div>
+    </main>
   );
 }

@@ -4,9 +4,11 @@ import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useApp } from "@/context/AppContext";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { lang } = useApp();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -18,7 +20,7 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      // 1. Авторизація через Supabase Auth
+      // 1. Authorize via Supabase
       const { data, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -27,7 +29,7 @@ export default function LoginPage() {
       if (authError) throw authError;
 
       if (data.user) {
-        // 2. Отримуємо роль користувача з таблиці profiles
+        // 2. Query role from profiles table
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
           .select("role")
@@ -36,9 +38,9 @@ export default function LoginPage() {
 
         if (profileError) throw profileError;
 
-        // 3. Перенаправляємо залежно від ролі
+        // 3. Route according to role
         if (profile?.role === "admin") {
-          router.push("/admin/leads");
+          router.push("/admin/projects");
         } else if (profile?.role === "designer") {
           router.push("/designer/projects");
         } else {
@@ -47,61 +49,100 @@ export default function LoginPage() {
 
         router.refresh();
       }
-    } catch (err: any) {
-      setError(err.message || "Помилка при вході. Перевірте email та пароль.");
+    } catch (err: unknown) {
+      const rawMessage =
+        typeof err === "object" && err !== null && "message" in err && typeof err.message === "string"
+          ? err.message.toLowerCase()
+          : "";
+      const message = rawMessage.includes("email not confirmed")
+        ? lang === "UA"
+          ? "Підтвердьте email перед входом."
+          : "Please confirm your email before signing in."
+        : lang === "UA"
+        ? "Не вдалося увійти. Перевірте email і пароль."
+        : "Could not sign in. Please verify your email and password.";
+      setError(message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <main className="min-h-screen bg-[#070708] text-white flex items-center justify-center p-6 font-mono">
-      <div className="max-w-md w-full bg-zinc-900 border border-white/10 p-8 rounded-xl space-y-6">
-        <div className="space-y-1 text-center">
-          <h1 className="text-xl font-bold tracking-tight">Вхід до кабінету</h1>
-          <p className="text-xs text-zinc-400">Mara Design Studio</p>
+    <main className="flex min-h-screen items-center justify-center bg-[#faf8f5] px-5 pb-16 pt-32 text-[#1c1b18]">
+      <div className="w-full max-w-md space-y-8 rounded-sm border border-[#e4e0d5] bg-white p-8 shadow-sm sm:p-10">
+        <div className="space-y-2">
+          <p className="text-[10px] font-medium uppercase tracking-[0.24em] text-[#8f8c82]">
+            MARA · DESIGN STUDIO
+          </p>
+          <h1 className="font-serif text-3xl font-normal text-[#1c1b18]">
+            {lang === "UA" ? "Вхід до кабінету" : "Sign in to workspace"}
+          </h1>
+          <p className="text-xs text-[#6e6c64]">
+            {lang === "UA"
+              ? "Особистий кабінет клієнта, дизайнера та студії"
+              : "Dedicated client, designer, and studio portal"}
+          </p>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleLogin} className="space-y-5">
           <div>
-            <label className="block text-xs text-zinc-400 mb-1">Email</label>
+            <label className="mb-2 block text-[10px] font-medium uppercase tracking-[0.16em] text-[#6e6c64]">
+              Email
+            </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full bg-zinc-800 border border-zinc-700 rounded p-2.5 text-sm text-white focus:outline-none focus:border-white/40"
-              placeholder="romkusik@gmail.com"
+              className="w-full rounded-sm border border-[#e4e0d5] bg-[#faf8f5] px-4 py-3 text-xs text-[#1c1b18] focus:border-[#1c1b18] focus:bg-white focus:outline-none"
+              placeholder="name@example.com"
             />
           </div>
 
           <div>
-            <label className="block text-xs text-zinc-400 mb-1">Пароль</label>
+            <div className="mb-2 flex items-center justify-between">
+              <label className="block text-[10px] font-medium uppercase tracking-[0.16em] text-[#6e6c64]">
+                {lang === "UA" ? "Пароль" : "Password"}
+              </label>
+            </div>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full bg-zinc-800 border border-zinc-700 rounded p-2.5 text-sm text-white focus:outline-none focus:border-white/40"
+              className="w-full rounded-sm border border-[#e4e0d5] bg-[#faf8f5] px-4 py-3 text-xs text-[#1c1b18] focus:border-[#1c1b18] focus:bg-white focus:outline-none"
               placeholder="••••••••"
             />
           </div>
 
-          {error && <p className="text-red-400 text-xs">{error}</p>}
+          {error && (
+            <p className="rounded-sm border border-red-200 bg-red-50 px-3.5 py-2.5 text-xs text-red-700">
+              {error}
+            </p>
+          )}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-white text-black font-semibold p-2.5 rounded text-xs hover:bg-zinc-200 transition cursor-pointer disabled:opacity-50"
+            className="w-full cursor-pointer rounded-sm bg-[#1c1b18] py-3.5 text-xs font-medium uppercase tracking-[0.16em] text-white transition-colors hover:bg-[#33312c] disabled:opacity-50"
           >
-            {loading ? "Вхід..." : "Увійти"}
+            {loading
+              ? lang === "UA"
+                ? "Авторизація..."
+                : "Signing in..."
+              : lang === "UA"
+              ? "Увійти в кабінет"
+              : "Sign in"}
           </button>
         </form>
 
-        <div className="text-center text-xs text-zinc-400 pt-2 border-t border-white/5">
-          Ще немає акаунта?{" "}
-          <Link href="/register" className="text-white hover:underline font-medium">
-            Зареєструватися
+        <div className="border-t border-[#e4e0d5] pt-5 text-xs text-[#6e6c64]">
+          {lang === "UA" ? "Ще немає акаунта?" : "Don't have an account yet?"}{" "}
+          <Link
+            href="/register"
+            className="font-medium text-[#1c1b18] underline underline-offset-4 hover:no-underline"
+          >
+            {lang === "UA" ? "Зареєструватися" : "Create an account"}
           </Link>
         </div>
       </div>

@@ -1,28 +1,29 @@
 "use client";
 
 import { useState, useRef } from "react";
-import Header from "@/components/Header";
 import About from "@/components/About";
 import Calculator from "@/components/PriceCalculator";
 import Contact from "@/components/Contact";
+import Footer from "@/components/Footer";
 import ProjectModal, { Project } from "@/components/ProjectModal";
 import { useApp } from "@/context/AppContext";
+import Link from "next/link";
 
 const PROJECTS: Project[] = [
   {
     id: "penthouse-modernism",
     titleUa: "Penthouse Modernism",
     titleEn: "Penthouse Modernism",
-    categoryUa: "Інтер'єр 3D",
-    categoryEn: "Interior 3D",
+    categoryUa: "Житловий інтер'єр 3D",
+    categoryEn: "Residential 3D",
     year: "2025",
     area: "180 м²",
-    styleUa: "Сучасний мінімализм",
+    styleUa: "Сучасний мінімалізм",
     styleEn: "Modern Minimalism",
     clientUa: "Приватний замовник",
     clientEn: "Private Client",
-    descriptionUa: "Просторі апартаменти у центрі міста з використанням натурального дерева, бетону та мінімалістичних меблів. Особливу увагу приділено сценаріям світла та текстурам високої деталізації (PBR).",
-    descriptionEn: "Spacious downtown apartment featuring natural wood, exposed concrete, and minimalist furniture. Special attention was paid to lighting scenarios and high-detail PBR textures.",
+    descriptionUa: "Просторі апартаменти з використанням натурального світлого дуба, вапняку та стриманих монохромних акцентів. Особливу увагу приділено природному освітленню та тактильним PBR-текстурам.",
+    descriptionEn: "Spacious residence featuring light oak surfaces, natural limestone, and restrained monochromatic accents. Special attention was paid to natural light flow and tactile PBR materiality.",
     mainImage: "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?q=80&w=1200&auto=format&fit=crop",
     gallery: [
       "https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?q=80&w=1000&auto=format&fit=crop",
@@ -33,20 +34,40 @@ const PROJECTS: Project[] = [
     id: "minimalist-office",
     titleUa: "Офісний простір у мінімалізмі",
     titleEn: "Minimalist Office Space",
-    categoryUa: "Комерційний",
-    categoryEn: "Commercial",
+    categoryUa: "Комерційний інтер'єр",
+    categoryEn: "Commercial Space",
     year: "2026",
     area: "320 м²",
     styleUa: "Корпоративний контемпорарі",
     styleEn: "Corporate Contemporary",
     clientUa: "IT-компанія 'TechPulse'",
     clientEn: "TechPulse Inc.",
-    descriptionUa: "Функціональний офіс open-space з лаунж-зонами, переговорними та акцентними світловими лініями. Створено повну атмосферу продуктивності та преміального стилю.",
-    descriptionEn: "Functional open-space office with lounge areas, meeting rooms, and accent lighting lines. Designed for maximum productivity and premium aesthetics.",
+    descriptionUa: "Функціональний офіс open-space з лаунж-зонами, переговорними та акцентними світловими лініями. Створено повну атмосферу продуктивності та преміального стриманого стилю.",
+    descriptionEn: "Functional open-space office with acoustic lounge zones, boardroom, and architectural accent lighting lines. Designed for productivity and refined aesthetic composure.",
     mainImage: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=1200&auto=format&fit=crop",
     gallery: [
       "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1000&auto=format&fit=crop",
       "https://images.unsplash.com/photo-1497215728101-856f4ea42174?q=80&w=1000&auto=format&fit=crop"
+    ]
+  },
+  {
+    id: "stonehaven-residence",
+    titleUa: "Резиденція Stonehaven",
+    titleEn: "Stonehaven Residence",
+    categoryUa: "Архітектура & Інтер'єр",
+    categoryEn: "Architecture & Interior",
+    year: "2026",
+    area: "295 м²",
+    styleUa: "Органічний мінімалізм",
+    styleEn: "Organic Minimalism",
+    clientUa: "Приватний замовник",
+    clientEn: "Private Client",
+    descriptionUa: "Концепція тихого притулку з чистими лініями, пом'якшеними натуральним каменем, дубовими панелями та приглушеною тональною палітрою, що дозволяє світлу вільно пересуватися простором.",
+    descriptionEn: "A quiet architectural retreat focusing on clean lines softened by natural stone, oak surfaces, and a muted tonal palette allowing light to move freely throughout.",
+    mainImage: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200&auto=format&fit=crop",
+    gallery: [
+      "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?q=80&w=1000&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1600585152220-90363fe7e115?q=80&w=1000&auto=format&fit=crop"
     ]
   },
   {
@@ -62,7 +83,7 @@ const PROJECTS: Project[] = [
     clientUa: "Приватний замовник",
     clientEn: "Private Client",
     descriptionUa: "Затишний гірський будинок із панорамним склінням, каміном на дровах та теплим текстилем. Візуалізація передає вечірнє затишне світло та текстуру каменя.",
-    descriptionEn: "Cozy mountain house with panoramic glazing, wood-burning fireplace, and warm textiles. Visualization captures warm evening lighting and stone textures.",
+    descriptionEn: "Mountain house with panoramic floor-to-ceiling glazing, wood-burning hearth, and warm natural textiles. Visualization conveys evening warmth and tactile stone textures.",
     mainImage: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=1200&auto=format&fit=crop",
     gallery: [
       "https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=1000&auto=format&fit=crop",
@@ -74,15 +95,15 @@ const PROJECTS: Project[] = [
     titleUa: "Скандинавська Квартира",
     titleEn: "Nordic Apartment",
     categoryUa: "Житловий інтер'єр",
-    categoryEn: "Residential",
+    categoryEn: "Residential Space",
     year: "2026",
     area: "95 м²",
     styleUa: "Скандинавський світлий",
     styleEn: "Nordic Light",
     clientUa: "Приватна особа",
     clientEn: "Private Individual",
-    descriptionUa: "Світлі пастельні відтінки, функціональні меблі та максимум природного світла. Проєкт створений для молодої родини.",
-    descriptionEn: "Light pastel shades, functional furniture, and maximum natural light. Designed for a modern young family.",
+    descriptionUa: "Світлі пастельні відтінки, функціональні вбудовані меблі та максимум природного світла. Проєкт створений для комфортного повсякденного життя молодої родини.",
+    descriptionEn: "Light warm pastels, functional integrated millwork, and maximum natural light. Designed for effortless rhythm of everyday living.",
     mainImage: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1200&auto=format&fit=crop",
     gallery: [
       "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?q=80&w=1000&auto=format&fit=crop",
@@ -90,39 +111,19 @@ const PROJECTS: Project[] = [
     ]
   },
   {
-    id: "dark-loft",
-    titleUa: "Лофт з темними акцентами",
-    titleEn: "Dark Industrial Loft",
-    categoryUa: "Лофт",
-    categoryEn: "Industrial",
-    year: "2025",
-    area: "140 м²",
-    styleUa: "Індустріальний лофт",
-    styleEn: "Industrial Loft",
-    clientUa: "Галерея сучасного мистецтва",
-    clientEn: "Modern Art Gallery",
-    descriptionUa: "Брутальні стіни з цегли, чорні металеві конструкції, шкіряні меблі та атмосферне акцентне освітлення.",
-    descriptionEn: "Brutal brick walls, black metal structures, leather furniture, and atmospheric accent lighting.",
-    mainImage: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=1200&auto=format&fit=crop",
-    gallery: [
-      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1000&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=1000&auto=format&fit=crop"
-    ]
-  },
-  {
     id: "japandi-villa",
-    titleUa: "Вілла в стилі Джапаннді",
+    titleUa: "Вілла в стилі Джапанді",
     titleEn: "Japandi Villa",
     categoryUa: "Архітектура & Інтер'єр",
     categoryEn: "Architecture & Interior",
     year: "2026",
     area: "410 м²",
-    styleUa: "Джапаннді / Дзен",
+    styleUa: "Джапанді / Дзен",
     styleEn: "Japandi / Zen",
     clientUa: "Приватний замовник",
     clientEn: "Private Client",
-    descriptionUa: "Поєднання японського мінімалізму та скандинавського комфорту. Чисті лінії, бамбук, мікроцемент та єдність з природою.",
-    descriptionEn: "A fusion of Japanese minimalism and Scandinavian comfort. Clean lines, bamboo, micro-cement, and harmony with nature.",
+    descriptionUa: "Гармонія японського мінімалізму та скандинавського комфорту. Чисті архітектурні лінії, бамбук, мікроцемент та нерозривний зв'язок з природним ландшафтом.",
+    descriptionEn: "Harmonious union of Japanese minimalism and Scandinavian comfort. Pure architectural lines, bamboo, micro-cement, and connection with surrounding nature.",
     mainImage: "https://images.unsplash.com/photo-1600573472550-8090b5e0745e?q=80&w=1200&auto=format&fit=crop",
     gallery: [
       "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?q=80&w=1000&auto=format&fit=crop",
@@ -131,160 +132,258 @@ const PROJECTS: Project[] = [
   }
 ];
 
-export type Currency = "UAH" | "USD" | "EUR";
-
 export default function Home() {
   const { lang } = useApp();
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [currency, setCurrency] = useState<Currency>("UAH");
   const sliderRef = useRef<HTMLDivElement>(null);
 
   const scrollSlider = (direction: "left" | "right") => {
     if (sliderRef.current) {
       const { scrollLeft, clientWidth } = sliderRef.current;
-      const offset = direction === "left" ? -clientWidth / 2 : clientWidth / 2;
+      const offset = direction === "left" ? -clientWidth / 1.5 : clientWidth / 1.5;
       sliderRef.current.scrollTo({ left: scrollLeft + offset, behavior: "smooth" });
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#070708] text-white selection:bg-white selection:text-black font-sans">
-      <Header />
-
-      {/* Панель перемикача валют (фіксована або у зручному місці) */}
-      <div className="max-w-7xl mx-auto px-6 md:px-12 pt-6 flex justify-end">
-        <div className="inline-flex border border-white/10 bg-zinc-900/60 backdrop-blur-md p-1">
-          {(["UAH", "USD", "EUR"] as Currency[]).map((c) => (
-            <button
-              key={c}
-              onClick={() => setCurrency(c)}
-              className={`px-3 py-1 text-[10px] font-mono tracking-wider transition-colors ${
-                currency === c ? "bg-white text-black font-medium" : "text-zinc-400 hover:text-white"
-              }`}
-            >
-              {c === "UAH" ? "₴ UAH" : c === "USD" ? "$ USD" : "€ EUR"}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Hero Section */}
-      <section className="relative h-screen flex flex-col justify-end px-6 md:px-12 pb-16 pt-16 max-w-7xl mx-auto overflow-hidden">
-        <div className="absolute inset-0 z-0 opacity-40">
-          <img 
-            src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2000&auto=format&fit=crop" 
-            alt="Interior Architecture" 
-            className="w-full h-full object-cover object-center scale-105 animate-pulse duration-[10000ms]"
+    <div className="min-h-screen bg-[#faf8f5] text-[#1c1b18]">
+      {/* Hero Section — Mirell Aesthetic */}
+      <section className="relative flex min-h-[580px] h-[85svh] w-full flex-col justify-end overflow-hidden px-5 pb-14 pt-28 sm:px-8 sm:pb-20 lg:min-h-[660px] lg:h-[88svh] lg:px-12 border-b border-[#e4e0d5]">
+        <div className="absolute inset-0 z-0">
+          <img
+            src="https://snqthbbwfyoogzrtithv.supabase.co/storage/v1/object/public/MainPict/AFCA_LIV_3.jpg"
+            alt="Stonehaven Residence Architecture"
+            className="h-full w-full object-cover object-center"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#070708] via-[#070708]/60 to-transparent"></div>
+          {/* Subtle warm stone gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#faf8f5] via-[#faf8f5]/40 to-black/20" />
         </div>
 
-        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
-          <div className="lg:col-span-8">
-            <span className="text-xs font-mono uppercase tracking-[0.3em] text-zinc-400 mb-4 block">
-              {lang === "UA" ? "Студія 3D Архітектури та Дизайну Інтер'єрів" : "3D Architecture & Interior Design Studio"}
+        <div className="relative z-10 w-full max-w-[1600px] mx-auto">
+          <div className="max-w-4xl">
+            <span className="mb-4 inline-block rounded-xs bg-white/80 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.22em] text-[#1c1b18] backdrop-blur-md border border-[#e4e0d5]">
+              {lang === "UA" ? "Студія 3D Архітектури та Дизайну" : "3D Architecture & Interior Studio"}
             </span>
-            <h1 className="text-3xl md:text-5xl lg:text-6xl font-light tracking-tight leading-[1.1] text-zinc-100">
-              {lang === "UA" ? "Архітектурна візуалізація та дизайн простору" : "Architectural Visualization & Space Design"}
+            <h1 className="font-serif text-4xl font-normal leading-[1.05] text-[#1c1b18] sm:text-6xl md:text-7xl lg:text-8xl">
+              {lang === "UA" ? (
+                <>Архітектурна візуалізація <br className="hidden sm:inline" />та дизайн простору</>
+              ) : (
+                <>Architectural visualization <br className="hidden sm:inline" />& space design</>
+              )}
             </h1>
-          </div>
-          <div className="lg:col-span-4 flex flex-col items-start lg:items-end justify-end gap-4">
-            <a 
-              href="#projects" 
-              className="text-xs font-mono uppercase tracking-widest bg-white text-black px-8 py-4 rounded-none hover:bg-zinc-200 transition-all font-medium"
-            >
-              {lang === "UA" ? "Переглянути проєкти" : "View Projects"}
-            </a>
-            <a 
-              href="#calculator" 
-              className="text-xs font-mono uppercase tracking-widest text-zinc-400 hover:text-white transition-colors border-b border-zinc-800 pb-1"
-            >
-              {lang === "UA" ? "Розрахувати вартість" : "Calculate Cost"} &rarr;
-            </a>
+
+            <div className="mt-8 flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-10">
+              <p className="max-w-lg text-sm leading-relaxed text-[#4a4943] sm:text-base">
+                {lang === "UA"
+                  ? "Створюємо чисті лінії, природні текстури вапняку й дуба та фотореалістичний простір, який можна відчути ще до початку будівництва."
+                  : "We craft clean lines, natural oak and limestone materiality, and photorealistic spaces that feel tangible long before construction begins."}
+              </p>
+              <div className="flex items-center gap-6 text-[11px] font-medium uppercase tracking-[0.18em]">
+                <a
+                  href="#projects"
+                  className="group flex items-center gap-1.5 border-b border-[#1c1b18] pb-1.5 text-[#1c1b18] transition-colors hover:text-[#6e6c64]"
+                >
+                  {lang === "UA" ? "Проєкти" : "Projects"} <span className="transition-transform group-hover:translate-x-0.5">↘</span>
+                </a>
+                <a
+                  href="#calculator"
+                  className="group flex items-center gap-1.5 border-b border-[#e4e0d5] pb-1.5 text-[#6e6c64] transition-colors hover:border-[#1c1b18] hover:text-[#1c1b18]"
+                >
+                  {lang === "UA" ? "Розрахувати проєкт" : "Estimate cost"} <span className="transition-transform group-hover:translate-x-0.5">↗</span>
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Секція проєктів (Слайдер) */}
-      <section id="projects" className="py-24 max-w-7xl mx-auto border-t border-white/5">
-        <div className="px-6 md:px-12 flex justify-between items-end mb-12">
+      {/* Projects Slider Section — Mirell Portfolio */}
+      <section id="projects" className="mx-auto max-w-[1600px] py-24 sm:py-32">
+        <div className="mb-10 flex items-end justify-between gap-6 px-5 sm:mb-14 sm:px-8 lg:px-12">
           <div>
-            <span className="text-xs font-mono uppercase tracking-[0.3em] text-zinc-500 block mb-2">
-              {lang === "UA" ? "Обрані роботи" : "Selected Works"}
+            <span className="mb-3 block text-[11px] font-medium uppercase tracking-[0.2em] text-[#6e6c64]">
+              {lang === "UA" ? "Портфоліо · 2025—2026" : "Selected Works · 2025—2026"}
             </span>
-            <h2 className="text-2xl md:text-3xl font-light tracking-wide">
-              {lang === "UA" ? "Вибрані проєкти" : "Selected Projects"}
+            <h2 className="font-serif text-3xl font-normal text-[#1c1b18] sm:text-5xl">
+              {lang === "UA" ? "Вибрані простори" : "Selected spaces"}
             </h2>
           </div>
-          
-          {/* Кнопки навігації */}
-          <div className="flex gap-3">
-            <button 
+
+          {/* Slider Arrows */}
+          <div className="flex gap-2.5">
+            <button
               onClick={() => scrollSlider("left")}
-              className="w-10 h-10 border border-white/20 hover:border-white flex items-center justify-center text-xs font-mono transition-colors cursor-pointer"
+              aria-label={lang === "UA" ? "Попередні проєкти" : "Previous projects"}
+              className="flex size-11 cursor-pointer items-center justify-center rounded-sm border border-[#e4e0d5] bg-white text-base text-[#1c1b18] transition-colors hover:border-[#1c1b18] hover:bg-[#1c1b18] hover:text-white"
             >
               &larr;
             </button>
-            <button 
+            <button
               onClick={() => scrollSlider("right")}
-              className="w-10 h-10 border border-white/20 hover:border-white flex items-center justify-center text-xs font-mono transition-colors cursor-pointer"
+              aria-label={lang === "UA" ? "Наступні проєкти" : "Next projects"}
+              className="flex size-11 cursor-pointer items-center justify-center rounded-sm border border-[#e4e0d5] bg-white text-base text-[#1c1b18] transition-colors hover:border-[#1c1b18] hover:bg-[#1c1b18] hover:text-white"
             >
               &rarr;
             </button>
           </div>
         </div>
 
-        {/* Слайдер зі збільшеними картками (фіксована ширина 275px) */}
-        <div 
+        {/* Scrollable Gallery */}
+        <div
           ref={sliderRef}
-          className="flex gap-5 overflow-x-auto px-6 md:px-12 scrollbar-none snap-x snap-mandatory pb-6"
+          className="scrollbar-none flex snap-x snap-mandatory gap-6 overflow-x-auto px-5 pb-6 sm:px-8 lg:px-12"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {PROJECTS.map((project) => (
-            <div 
+            <div
               key={project.id}
               onClick={() => setSelectedProject(project)}
-              className="w-[275px] sm:w-[300px] snap-start group cursor-pointer flex-shrink-0"
+              className="group w-[86vw] max-w-190 shrink-0 cursor-pointer snap-start sm:w-[62vw] lg:w-[min(54vw,720px)]"
             >
-              <div className="aspect-[4/3] bg-zinc-900 overflow-hidden relative mb-2.5 border border-white/10 group-hover:border-white/40 transition-colors">
-                <img 
-                  src={project.mainImage} 
-                  alt={project.titleEn} 
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out opacity-90 group-hover:opacity-100"
+              <div className="relative mb-5 aspect-16/10 overflow-hidden rounded-sm bg-[#ece8de] shadow-xs">
+                <img
+                  src={project.mainImage}
+                  alt={project.titleEn}
+                  className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
                 />
-                <div className="absolute top-2.5 left-2.5 bg-black/70 backdrop-blur-md px-2.5 py-1 text-[8px] font-mono tracking-widest uppercase text-zinc-300">
+                <div className="absolute bottom-4 left-4 rounded-xs border border-[#e4e0d5] bg-white/90 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.18em] text-[#1c1b18] backdrop-blur-md sm:bottom-5 sm:left-5">
                   {lang === "UA" ? project.categoryUa : project.categoryEn}
                 </div>
               </div>
-              <div className="flex justify-between items-baseline px-0.5">
-                <h3 className="text-xs font-mono uppercase tracking-wider text-zinc-200 group-hover:text-white transition-colors truncate pr-2">
-                  {lang === "UA" ? project.titleUa : project.titleEn}
-                </h3>
-                <span className="text-[11px] font-mono text-zinc-500 flex-shrink-0">{project.year}</span>
+
+              <div className="flex items-start justify-between gap-5 border-b border-[#e4e0d5] pb-4">
+                <div>
+                  <h3 className="font-serif text-xl font-normal text-[#1c1b18] transition-colors group-hover:text-[#6e6c64] sm:text-2xl">
+                    {lang === "UA" ? project.titleUa : project.titleEn}
+                  </h3>
+                  <p className="mt-1.5 text-xs text-[#6e6c64]">
+                    {lang === "UA" ? `Площа ${project.area}` : `Area ${project.area}`} · {lang === "UA" ? project.styleUa : project.styleEn}
+                  </p>
+                </div>
+                <span className="shrink-0 pt-1 font-mono text-xs text-[#8f8c82]">
+                  {project.year} <span className="ml-1 text-[#1c1b18] transition-transform group-hover:translate-x-1">↗</span>
+                </span>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Інші секції сайту */}
-      <div id="services"></div>
-      <div id="calculator">
-        <Calculator currency={currency} />
+      {/* Process & Business Model Section (Decorilla inspired) */}
+      <section id="services" className="border-t border-[#e4e0d5] bg-[#f4f0e8] py-24 sm:py-32">
+        <div className="mx-auto max-w-[1600px] px-5 sm:px-8 lg:px-12">
+          <div className="mb-14 max-w-3xl">
+            <span className="mb-3 block text-[11px] font-medium uppercase tracking-[0.2em] text-[#6e6c64]">
+              {lang === "UA" ? "Бізнес-модель & Методологія" : "Business Model & Workflow"}
+            </span>
+            <h2 className="font-serif text-3xl font-normal text-[#1c1b18] sm:text-5xl">
+              {lang === "UA"
+                ? "Прозорий процес від технічного завдання до реалізації"
+                : "A seamless journey from initial brief to photorealistic reality"}
+            </h2>
+            <p className="mt-4 text-sm leading-relaxed text-[#6e6c64] sm:text-base">
+              {lang === "UA"
+                ? "Ми побудували модель взаємодії за зразком провідних світових студій (Decorilla): поетапне узгодження, швидкі ітерації, персональний кабінет та інтерактивні панорами."
+                : "Inspired by global platforms (Decorilla), our collaborative workflow ensures clarity, milestone approvals, live chat, and interactive VR tours."}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+            {/* Step 1 */}
+            <div className="rounded-sm border border-[#e4e0d5] bg-white p-8 shadow-xs">
+              <span className="font-serif text-3xl font-normal text-[#8f8c82]">01</span>
+              <h3 className="mt-4 font-serif text-xl font-normal text-[#1c1b18]">
+                {lang === "UA" ? "Бриф & Швидка оцінка" : "Brief & Quick Estimation"}
+              </h3>
+              <p className="mt-3 text-xs leading-relaxed text-[#6e6c64]">
+                {lang === "UA"
+                  ? "Завантажте ваші плани (DWG/PDF), заповніть ТЗ у калькуляторі та отримайте фіксовану вартість з урахуванням обраних опцій."
+                  : "Upload plans (DWG/PDF), outline your aesthetic requirements, and receive a fixed transparent quote with tailored options."}
+              </p>
+              <div className="mt-6 border-t border-[#e4e0d5] pt-4 text-[11px] font-medium text-[#1c1b18]">
+                {lang === "UA" ? "✓ Затвердження кошторису за 24 години" : "✓ Estimate finalized within 24 hours"}
+              </div>
+            </div>
+
+            {/* Step 2 */}
+            <div className="rounded-sm border border-[#e4e0d5] bg-white p-8 shadow-xs">
+              <span className="font-serif text-3xl font-normal text-[#8f8c82]">02</span>
+              <h3 className="mt-4 font-serif text-xl font-normal text-[#1c1b18]">
+                {lang === "UA" ? "3D-Концепції & VR 360°" : "3D Concepts & VR 360°"}
+              </h3>
+              <p className="mt-3 text-xs leading-relaxed text-[#6e6c64]">
+                {lang === "UA"
+                  ? "Побудова точної геометрії, налаштування світлових сценаріїв та презентація інтерактивних ракурсів для первинного узгодження."
+                  : "Accurate modeling, spatial lighting scenarios, and interactive 360° panoramas allowing you to step inside your room before committing."}
+              </p>
+              <div className="mt-6 border-t border-[#e4e0d5] pt-4 text-[11px] font-medium text-[#1c1b18]">
+                {lang === "UA" ? "✓ Ітерації правок у кабінеті проєкту" : "✓ Real-time feedback in Project Workspace"}
+              </div>
+            </div>
+
+            {/* Step 3 */}
+            <div className="rounded-sm border border-[#e4e0d5] bg-white p-8 shadow-xs">
+              <span className="font-serif text-3xl font-normal text-[#8f8c82]">03</span>
+              <h3 className="mt-4 font-serif text-xl font-normal text-[#1c1b18]">
+                {lang === "UA" ? "Фінальні рендери & Пакет креслень" : "High-Res CGI & Documentation"}
+              </h3>
+              <p className="mt-3 text-xs leading-relaxed text-[#6e6c64]">
+                {lang === "UA"
+                  ? "Рендери ультрависокої роздільності (4K/8K), специфікація оздоблювальних матеріалів та готові пакети для будівельників."
+                  : "High-resolution 4K/8K presentation renders, material schedules, and contractor-ready architectural specifications."}
+              </p>
+              <div className="mt-6 border-t border-[#e4e0d5] pt-4 text-[11px] font-medium text-[#1c1b18]">
+                {lang === "UA" ? "✓ Повна передача файлів та авторський нагляд" : "✓ Complete handover with asset storage"}
+              </div>
+            </div>
+          </div>
+
+          {/* Client Portal Callout */}
+          <div className="mt-12 rounded-sm border border-[#e4e0d5] bg-[#faf8f5] p-8 sm:p-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div>
+              <span className="text-[10px] uppercase tracking-[0.2em] font-medium text-[#8f8c82]">
+                {lang === "UA" ? "Екосистема співпраці" : "Client Ecosystem"}
+              </span>
+              <h3 className="font-serif text-2xl font-normal text-[#1c1b18] mt-1">
+                {lang === "UA" ? "Кабінет клієнта та робоча зона проєкту" : "Client Portal & Project Workspace"}
+              </h3>
+              <p className="text-xs text-[#6e6c64] mt-2 max-w-xl leading-relaxed">
+                {lang === "UA"
+                  ? "Відстежуйте статуси завдань, погоджуйте версії рендерів, ведіть прямий діалог з візуалізатором та зберігайте всі матеріали в одному місці."
+                  : "Track milestones, approve render drafts, chat directly with your designer, and access high-res files from a secure dashboard."}
+              </p>
+            </div>
+            <Link
+              href="/login"
+              className="shrink-0 cursor-pointer rounded-sm bg-[#1c1b18] px-6 py-3.5 text-xs font-medium uppercase tracking-[0.16em] text-white hover:bg-[#33312c] transition-colors"
+            >
+              {lang === "UA" ? "Увійти в кабінет →" : "Access Workspace →"}
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Calculator Section */}
+      <div id="calculator" className="border-t border-[#e4e0d5]">
+        <Calculator />
       </div>
 
+      {/* About Section */}
       <div id="about">
         <About />
       </div>
 
+      {/* Contact Section */}
       <div id="contact">
         <Contact />
       </div>
 
-      {/* Модальне вікно проєкту */}
-      <ProjectModal 
-        project={selectedProject} 
-        onClose={() => setSelectedProject(null)} 
+      <Footer />
+
+      {/* Project Modal */}
+      <ProjectModal
+        project={selectedProject}
+        onClose={() => setSelectedProject(null)}
       />
     </div>
   );

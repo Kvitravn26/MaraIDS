@@ -33,11 +33,11 @@ export default function ClientDashboard() {
     const loadClientData = async () => {
       setLoading(true);
 
-      // Отримуємо поточного залогіненого користувача
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
       if (user) {
-        // Отримуємо ім'я з профілю
         const { data: profile } = await supabase
           .from("profiles")
           .select("full_name")
@@ -50,7 +50,6 @@ export default function ClientDashboard() {
           setUserName(user.user_metadata.full_name);
         }
 
-        // Отримуємо проєкти цього клієнта з Supabase
         const { data: projData } = await supabase
           .from("client_project_requests")
           .select("*")
@@ -68,91 +67,108 @@ export default function ClientDashboard() {
   }, []);
 
   return (
-    <div className="pt-28 pb-20 px-6 max-w-7xl mx-auto text-white space-y-8 font-sans">
-      {/* Шапка кабінету клієнта */}
-      <div className="bg-[#121214] border border-white/10 p-8 rounded-3xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+    <div className="mx-auto max-w-7xl px-5 pb-20 pt-32 text-[#1c1b18] sm:px-8 space-y-10">
+      {/* Header Banner */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 rounded-sm border border-[#e4e0d5] bg-white p-8 sm:p-10 shadow-xs">
         <div>
-          <span className="text-xs font-mono uppercase text-zinc-500">
-
+          <span className="block text-[10px] font-medium uppercase tracking-[0.2em] text-[#8f8c82]">
+            {lang === "UA" ? "Особистий кабінет клієнта" : "Client Portal Dashboard"}
           </span>
-          <h1 className="text-2xl font-bold tracking-tight mt-1">
+          <h1 className="mt-2 font-serif text-3xl font-normal text-[#1c1b18]">
             {lang === "UA" ? `Вітаємо, ${userName || "Замовник"}!` : `Welcome, ${userName || "Client"}!`}
           </h1>
-          <p className="text-xs text-zinc-400 mt-1">
+          <p className="mt-2 max-w-xl text-xs leading-relaxed text-[#6e6c64]">
             {lang === "UA"
-              ? "Тут ви можете відстежувати хід візуалізації, узгоджувати ТЗ та додавати нові об'єкти."
-              : "Track your design project status and manage specifications."}
+              ? "Відстежуйте стан візуалізації ваших об'єктів, погоджуйте ТЗ та додавайте нові приміщення в роботу."
+              : "Track the visualization progress of your spaces, approve drafts, and submit new project briefs."}
           </p>
         </div>
 
-        {/* Головна кнопка створення нового проєкту */}
         <Link
           href="/client/projects/new"
-          className="bg-white text-black font-semibold px-6 py-3.5 rounded-2xl text-xs uppercase tracking-wider hover:bg-zinc-200 transition cursor-pointer font-mono shadow-lg shrink-0"
+          className="shrink-0 cursor-pointer rounded-sm bg-[#1c1b18] px-6 py-3.5 text-xs font-medium uppercase tracking-[0.14em] text-white transition-colors hover:bg-[#33312c]"
         >
           {lang === "UA" ? "+ Створити новий проєкт" : "+ Create New Project"}
         </Link>
       </div>
 
-      {/* Список проєктів клієнта */}
-      <div className="space-y-4">
-        <h2 className="text-xs font-mono uppercase text-zinc-400 tracking-wider">
-          {lang === "UA" ? "Ваші об'єкти та проєкти" : "Your Projects"}
-        </h2>
+      {/* Projects List */}
+      <div className="space-y-5">
+        <div className="flex items-center justify-between border-b border-[#e4e0d5] pb-3">
+          <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1c1b18]">
+            {lang === "UA" ? "Ваші активні об'єкти" : "Your Active Projects"}
+          </h2>
+          <span className="font-mono text-xs text-[#8f8c82]">
+            {projects.length} {lang === "UA" ? "об'єктів" : "spaces"}
+          </span>
+        </div>
 
         {loading ? (
-          <div className="text-xs font-mono text-zinc-500 py-8">
+          <div className="py-12 text-center font-mono text-xs text-[#8f8c82]">
             {lang === "UA" ? "Завантаження проєктів..." : "Loading projects..."}
           </div>
         ) : projects.length === 0 ? (
-          /* Порожній стан, якщо проєктів ще немає */
-          <div className="bg-[#121214]/60 border border-dashed border-white/10 p-12 rounded-3xl text-center space-y-4">
-            <div className="text-3xl opacity-40">🏠</div>
+          <div className="rounded-sm border border-dashed border-[#e4e0d5] bg-white p-14 text-center space-y-4">
+            <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-[#f4f0e8] text-xl">
+              📐
+            </div>
             <div>
-              <h3 className="text-sm font-bold">
+              <h3 className="font-serif text-xl font-normal text-[#1c1b18]">
                 {lang === "UA" ? "У вас поки немає активних проєктів" : "No active projects yet"}
               </h3>
-              <p className="text-xs text-zinc-500 mt-1 max-w-md mx-auto">
+              <p className="mx-auto mt-2 max-w-md text-xs leading-relaxed text-[#6e6c64]">
                 {lang === "UA"
-                  ? "Натисніть кнопку нижче, щоб заповнити ТЗ, прикріпити креслення та відправити об'єкт у роботу студії."
-                  : "Click the button below to fill out specs and attach drawings."}
+                  ? "Натисніть кнопку нижче, щоб додати перше технічне завдання, прикріпити креслення (DWG/PDF) та передати простір команді студії."
+                  : "Click the button below to upload blueprints (DWG/PDF), outline your style preferences, and launch your project."}
               </p>
             </div>
-            <Link
-              href="/client/projects/new"
-              className="inline-block bg-white text-black font-semibold px-5 py-3 rounded-xl text-xs uppercase tracking-wider hover:bg-zinc-200 transition font-mono"
-            >
-              {lang === "UA" ? "Додати перше ТЗ" : "Add First Project"}
-            </Link>
+            <div>
+              <Link
+                href="/client/projects/new"
+                className="inline-block cursor-pointer rounded-sm bg-[#1c1b18] px-6 py-3 text-xs font-medium uppercase tracking-[0.14em] text-white hover:bg-[#33312c] transition-colors"
+              >
+                {lang === "UA" ? "Додати перше ТЗ" : "Submit First Brief"}
+              </Link>
+            </div>
           </div>
         ) : (
-          /* Картки активних проєктів */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {projects.map((p) => (
               <div
                 key={p.id}
-                className="bg-[#121214] border border-white/10 p-6 rounded-2xl space-y-4 hover:border-white/30 transition flex flex-col justify-between"
+                className="flex flex-col justify-between rounded-sm border border-[#e4e0d5] bg-white p-6 shadow-xs transition-shadow hover:shadow-md"
               >
-                <div>
-                  <div className="flex justify-between items-start mb-3">
-                    <span className="text-[10px] font-mono text-zinc-500">ID: {p.id.slice(0, 8)}...</span>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between text-[10px] font-mono">
+                    <span className="text-[#8f8c82]">ID: {p.id.slice(0, 8)}</span>
+                    <span className="rounded-xs border border-[#e4e0d5] bg-[#f4f0e8] px-2 py-0.5 font-medium text-[#1c1b18]">
                       {PROJECT_STATUS_LABELS[p.status]?.[lang] || p.status}
                     </span>
                   </div>
-                  <h3 className="text-base font-bold text-white">{p.title}</h3>
-                  <p className="text-xs font-mono text-zinc-400 mt-2">
-                    {p.property_type === "apartment" ? "Квартира" : "Будинок"} | {p.area} м²
+
+                  <h3 className="font-serif text-lg font-normal text-[#1c1b18]">
+                    {p.title}
+                  </h3>
+
+                  <p className="text-xs text-[#6e6c64]">
+                    {p.property_type === "apartment"
+                      ? lang === "UA" ? "Квартира" : "Apartment"
+                      : p.property_type === "commercial"
+                      ? lang === "UA" ? "Комерційне приміщення" : "Commercial space"
+                      : lang === "UA" ? "Будинок" : "House"}
+                    {` · ${p.area} м²`}
                   </p>
                 </div>
 
-                <div className="pt-4 border-t border-white/5 flex justify-between items-center text-xs font-mono">
-                  <span className="text-zinc-500">{new Date(p.created_at).toLocaleDateString()}</span>
+                <div className="mt-6 flex items-center justify-between border-t border-[#e4e0d5] pt-4 text-xs font-mono">
+                  <span className="text-[#8f8c82]">
+                    {new Date(p.created_at).toLocaleDateString(lang === "UA" ? "uk-UA" : "en-US")}
+                  </span>
                   <Link
                     href={`/project-workspace/${p.id}`}
-                    className="text-white hover:underline"
+                    className="font-medium text-[#1c1b18] underline hover:no-underline"
                   >
-                    {lang === "UA" ? "Деталі →" : "Details →"}
+                    {lang === "UA" ? "Робоча зона →" : "Workspace →"}
                   </Link>
                 </div>
               </div>
