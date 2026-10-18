@@ -1,8 +1,21 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@supabase/supabase-js";
 
 export async function POST(request: Request) {
   try {
+    // Ініціалізація Supabase всередині функції для запобігання помилкам під час білду на Vercel
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseKey) {
+      return NextResponse.json(
+        { success: false, error: "Supabase environment variables are missing." },
+        { status: 500 }
+      );
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
     const body = await request.json();
     const recipientDetails = body.recipientDetails;
     const requiredRecipientFields = ["name", "country", "address", "email", "city", "phone"];
@@ -62,7 +75,6 @@ export async function POST(request: Request) {
 
     let updatedPaidAmount = Number(amount || 0);
     let newInvoiceStatus = "PAID";
-    let updatedProjectStatus = "IN_PROGRESS";
 
     if (currentInvoice) {
       const total = Number(currentInvoice.total_amount || amount);
@@ -90,7 +102,6 @@ export async function POST(request: Request) {
       } else if (stage === "advance") {
         updatedPaidAmount = Math.min(total, prevPaid + Number(amount));
         newInvoiceStatus = updatedPaidAmount >= total ? "PAID" : "PARTIALLY_PAID";
-        updatedProjectStatus = "IN_PROGRESS";
       } else if (stage === "balance") {
         updatedPaidAmount = total;
         newInvoiceStatus = "PAID";
