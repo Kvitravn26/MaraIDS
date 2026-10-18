@@ -76,20 +76,12 @@ export default function Contact() {
           <div className="space-y-6 border-t border-[#e4e0d5] pt-6 text-xs text-[#4a4943]">
             <div>
               <span className="mb-1.5 block text-[10px] font-medium uppercase tracking-[0.16em] text-[#8f8c82]">
-                Email
+            
               </span>
-              <a
-                href="mailto:maradesigninterior@gmail.com"
-                className="font-medium text-[#1c1b18] transition-colors hover:underline"
-              >
-                maradesigninterior@gmail.com
-              </a>
+              
             </div>
             <div>
-              <span className="mb-1.5 block text-[10px] font-medium uppercase tracking-[0.16em] text-[#8f8c82]">
-                {lang === "UA" ? "Локація" : "Location"}
-              </span>
-              <span className="font-medium text-[#1c1b18]">Kyiv, Ukraine · Remote Worldwide</span>
+              
             </div>
           </div>
         </div>

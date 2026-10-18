@@ -38,103 +38,123 @@ const PROJECTS: Project[] = [
     ]
   },
   {
-    id: "minimalist-office",
-    titleUa: "Офісний простір у мінімалізмі",
-    titleEn: "Minimalist Office Space",
-    categoryUa: "Комерційний інтер'єр",
-    categoryEn: "Commercial Space",
+    id: "Soft-Modern",
+    titleUa: "М'який модерн",
+    titleEn: "Soft Modern",
+    categoryUa: "Житловий інтер'єр 3D",
+    categoryEn: "Residential 3D",
     year: "2026",
-    area: "320 м²",
-    styleUa: "Корпоративний контемпорарі",
-    styleEn: "Corporate Contemporary",
-    clientUa: "IT-компанія 'TechPulse'",
-    clientEn: "TechPulse Inc.",
-    descriptionUa: "Функціональний офіс open-space з лаунж-зонами, переговорними та акцентними світловими лініями. Створено повну атмосферу продуктивності та преміального стриманого стилю.",
-    descriptionEn: "Functional open-space office with acoustic lounge zones, boardroom, and architectural accent lighting lines. Designed for productivity and refined aesthetic composure.",
-    mainImage: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=1200&auto=format&fit=crop",
+    area: "14 м²",
+    styleUa: "Soft Minimal",
+    styleEn: "Soft Minimal",
+    clientUa: "Приватний замовник",
+    clientEn: "Private Client",
+    descriptionUa: "Інтер'єр побудований на концепції м'якого мінімалізму та архітектурній пластиці. Головним акцентом виступає фактурне ліжко з об'ємним букле та радіусні фасади меблів, які пом'якшують геометрію кімнати. Нейтральна монохромна палітра в теплих кавово-молочних відтінках доповнена графічним контрастом темного паркету та барельєфним панно з рослинним мотивом. Світильник-хмара додає легкості, а продумана зона робочого столу гармонійно інтегрована в загальну систему зберігання.",
+    descriptionEn: "The interior is based on the concept of soft minimalism and architectural form. The main focal points are the textured bed with a voluminous bouclé fabric and the curved furniture fronts, which soften the room’s geometry. The neutral monochromatic palette in warm coffee-and-milk shades is complemented by the graphic contrast of dark parquet flooring and a bas-relief panel featuring a botanical motif. The cloud-shaped light fixture adds a sense of lightness, and the thoughtfully designed desk area is harmoniously integrated into the overall storage system.",
+    mainImage: "/projects/Iryna_Dutya_2.jpg",
     gallery: [
-      "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1000&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1497215728101-856f4ea42174?q=80&w=1000&auto=format&fit=crop"
+      "/projects/Iryna_Dutya_1.jpg",
+      "/projects/Iryna_Dutya_3.jpg",
+      "/projects/Iryna_Dutya_5.jpg",
+      "/projects/Iryna_Dutya_6.jpg",
+
+
     ]
   },
   {
-    id: "stonehaven-residence",
-    titleUa: "Резиденція Stonehaven",
-    titleEn: "Stonehaven Residence",
+    id: "pryve-eisenhower",
+    titleUa: "Проект Ейзенховер (Бельгія)",
+    titleEn: "Eisenhower Project (Belgium)",
     categoryUa: "Архітектура & Інтер'єр",
     categoryEn: "Architecture & Interior",
     year: "2026",
-    area: "295 м²",
-    styleUa: "Органічний мінімалізм",
-    styleEn: "Organic Minimalism",
-    clientUa: "Приватний замовник",
-    clientEn: "Private Client",
-    descriptionUa: "Концепція тихого притулку з чистими лініями, пом'якшеними натуральним каменем, дубовими панелями та приглушеною тональною палітрою, що дозволяє світлу вільно пересуватися простором.",
-    descriptionEn: "A quiet architectural retreat focusing on clean lines softened by natural stone, oak surfaces, and a muted tonal palette allowing light to move freely throughout.",
-    mainImage: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200&auto=format&fit=crop",
+    area: "85 м²",
+    styleUa: "Сучасна класика з елементами Mid-Century",
+    styleEn: "Contemporary Classic with Mid-Century Elements",
+    clientUa: "Pryve Interior",
+    clientEn: "Pryve Interior",
+    descriptionUa: "Елегантний та затишний інтер'єр, де класична архітектура гармонійно поєднується з сучасними дизайнерськими рішеннями. Вітальня виконана у світлій нейтральній гамі з теплими акцентами теракотового та натурального дерева. Окрасою простору є різьблений камінний портал з мармуру, доповнений дзеркальним панно та латуневими деталями. У обідній зоні та кухонній групі використані натуральні фактури: дерев'яний стіл овальної форми, стільці з плетеним ротангом та глянцева плитка ручної роботи. Санвузол оформлений у глибоких теракотово-глиняних тонах з акцентною раковиною з натурального травертину, раковиною-колоною та елементами терраццо.",
+    descriptionEn: "An elegant and cozy interior seamlessly blending classical architectural details with modern design elements. The living area features a light neutral color palette highlighted by warm terracotta accents and natural wood finishes. A carved marble fireplace portal with an antique-mirrored panel and brass hardware serves as the focal point of the room. The dining space incorporates organic textures, including an oval wooden table, rattan-backed chairs, and glossy zellige-style tiles. The guest bathroom is designed in deep terracotta tones, featuring a custom fluted travertine sink, arched mirror, and terrazzo flooring.",
+    mainImage: "/projects/PRYVE_EISENHOWER_1.jpg",
     gallery: [
-      "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?q=80&w=1000&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1600585152220-90363fe7e115?q=80&w=1000&auto=format&fit=crop"
+      "/projects/PRYVE_EISENHOWER_2.jpg",
+      "/projects/PRYVE_EISENHOWER_3.jpg",
+      "/projects/PRYVE_EISENHOWER_4.jpg",
+      "/projects/PRYVE_EISENHOWER_5.jpg",
     ]
   },
   {
-    id: "alpine-chalet",
-    titleUa: "Альпійський Шале",
-    titleEn: "Alpine Chalet",
-    categoryUa: "Екстер'єр / Інтер'єр",
-    categoryEn: "Exterior / Interior",
+    id: "sj-residence",
+    titleUa: "S&J Residence (Бельгія)",
+    titleEn: "S&J Residence (Belgium)",
+    categoryUa: "Житлові інтер'єри / Приватний будинок",
+    categoryEn: "Residential Interiors / Private House",
     year: "2025",
-    area: "240 м²",
-    styleUa: "Шале / Еко-стиль",
-    styleEn: "Chalet / Eco Style",
-    clientUa: "Приватний замовник",
-    clientEn: "Private Client",
-    descriptionUa: "Затишний гірський будинок із панорамним склінням, каміном на дровах та теплим текстилем. Візуалізація передає вечірнє затишне світло та текстуру каменя.",
-    descriptionEn: "Mountain house with panoramic floor-to-ceiling glazing, wood-burning hearth, and warm natural textiles. Visualization conveys evening warmth and tactile stone textures.",
-    mainImage: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=1200&auto=format&fit=crop",
+    area: "140 м²",
+    styleUa: "Сучасний мінімалізм / Джапанді та Organic Modern",
+    styleEn: "Soft Minimal / Japandi & Organic Modern",
+    clientUa: "Pryve Interior",
+    clientEn: "Pryve Interior",
+    descriptionUa: "Просторний та світлий інтер'єр приватного будинку, розроблений у концепції естетичного мінімалізму з органічними та натуральними текстурами. Open-space зона об'єднує затишну вітальню з великим модульним диваном, обідню групу з масивним столом з дикого дуба та кухню з акцентним островом, оздобленим калакатта-мармуром. Панорамні вікна з чорним заскленням перегукуються з графічними елементами меблів та світильників. Простора ванна кімната виконана у теплому бежевому монохромі з використанням травертину, рельєфної керамічної плитки, раковин із дикого каменю та латуневої змішувальної фурнітури.",
+    descriptionEn: "A spacious and light-filled private residence interior designed through an organic minimalist lens. The open-concept living space features a plush sectional sofa, a dining area centered around a solid live-edge oak table, and a modern kitchen with a waterfall Calacatta marble island. Black-framed grid windows provide a stylish contrast against light-toned plaster, soft textiles, and warm wood flooring. The primary bathroom functions as a serene home spa, highlighting travertine finishes, fluted wall tiles, natural stone vessel sinks, and brushed brass fixtures.",
+    mainImage: "/projects/S&J_1.jpg",
     gallery: [
-      "https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=1000&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=1000&auto=format&fit=crop"
+      "/projects/S&J_2.jpg",
+      "/projects/S&J_3.jpg",
+      "/projects/S&J_4.jpg",
+      "/projects/S&J_5.jpg",
+      "/projects/S&J_6.jpg",
+      "/projects/S&J_7.jpg",
+      "/projects/S&J_8.jpg",
     ]
   },
   {
-    id: "scandi-apartment",
-    titleUa: "Скандинавська Квартира",
-    titleEn: "Nordic Apartment",
-    categoryUa: "Житловий інтер'єр",
-    categoryEn: "Residential Space",
-    year: "2026",
-    area: "95 м²",
-    styleUa: "Скандинавський світлий",
-    styleEn: "Nordic Light",
-    clientUa: "Приватна особа",
-    clientEn: "Private Individual",
-    descriptionUa: "Світлі пастельні відтінки, функціональні вбудовані меблі та максимум природного світла. Проєкт створений для комфортного повсякденного життя молодої родини.",
-    descriptionEn: "Light warm pastels, functional integrated millwork, and maximum natural light. Designed for effortless rhythm of everyday living.",
-    mainImage: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1200&auto=format&fit=crop",
+    id: "villa-french-riviera",
+    titleUa: "Villa French Riviera",
+    titleEn: "Villa French Riviera",
+    categoryUa: "Житлові інтер'єри / Приватна вілла",
+    categoryEn: "Residential Interiors / Private Villa",
+    year: "2025",
+    area: "250 м²",
+    styleUa: "Сучасна класика з елементами Neo-Classic та Modern Luxury",
+    styleEn: "Neo-Classic / Modern Luxury",
+    clientUa: "MAAM Studio (Франція)",
+    clientEn: "MAAM Studio (France)",
+    descriptionUa: "Вишуканий інтер'єр приватної вілли у Франції, виконаний на стику неокласики та сучасного преміального дизайну. Простір вирізняється високими арочними вікнами з темними графічними палітурками, витонченими стельовими карнизами з прихованим підсвічуванням та паркетом художньої викладки. У вітальні гармонійно поєднуються світлий м'який текстиль, глибокі панелі з темного дерева, а також журнальний стіл із вираженою текстурою сірого мармуру. Кухня та обідня зона оснащені масивними островами з мармуру Calacatta, контрастними тонованими фасадами та текстурними стільцями. Головна ванна кімната відтворює атмосферу спа завдяки суцільному оздобленню мармуром, окремо розташованій ванні, латуневим змішувачам під старовину та дизайнерським мармуровим пуфам-столикам.",
+    descriptionEn: "  A sophisticated private villa interior in France, blending timeless French Neo-Classicism with contemporary luxury. The architecture features grand arched windows with dark grid frames, classical ceiling moldings with integrated warm lighting, and rich parquet flooring. The living area harmonizes soft light upholstery with deep dark wood wall paneling and a statement grey marble coffee table. The kitchen and dining spaces showcase expansive Calacatta marble counters, rich dark cabinetry, and tactile boucle bar seating. The primary bathroom offers a sanctuary vibe with full marble cladding, a freestanding bathtub, brushed brass fixtures, and custom sculptural marble pedestals.",
+    mainImage: "/projects/Villa_1.jpg",
     gallery: [
-      "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?q=80&w=1000&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1615874959474-d6099696fc52?q=80&w=1000&auto=format&fit=crop"
+      "/projects/Villa_2.jpg",
+      "/projects/Villa_3.jpg",
+      "/projects/Villa_4.jpg",
+      "/projects/Villa_5.jpg",
+      "/projects/Villa_6.jpg",
+      "/projects/Villa_7.jpg",
+      "/projects/Villa_8.jpg",
+      "/projects/Villa_9.jpg",
     ]
   },
   {
-    id: "japandi-villa",
-    titleUa: "Вілла в стилі Джапанді",
-    titleEn: "Japandi Villa",
-    categoryUa: "Архітектура & Інтер'єр",
-    categoryEn: "Architecture & Interior",
-    year: "2026",
-    area: "410 м²",
-    styleUa: "Джапанді / Дзен",
-    styleEn: "Japandi / Zen",
-    clientUa: "Приватний замовник",
-    clientEn: "Private Client",
-    descriptionUa: "Гармонія японського мінімалізму та скандинавського комфорту. Чисті архітектурні лінії, бамбук, мікроцемент та нерозривний зв'язок з природним ландшафтом.",
-    descriptionEn: "Harmonious union of Japanese minimalism and Scandinavian comfort. Pure architectural lines, bamboo, micro-cement, and connection with surrounding nature.",
-    mainImage: "https://images.unsplash.com/photo-1600573472550-8090b5e0745e?q=80&w=1200&auto=format&fit=crop",
+    id: "alpine-chalet-france",
+    titleUa: "Alpine Chalet France",
+    titleEn: "Alpine Chalet France",
+    categoryUa: "Житлові інтер'єри / Альпійське шале",
+    categoryEn: "Residential Interiors / Alpine Chalet",
+    year: "2025",
+    area: "280 м²",
+    styleUa: "Сучасне альпійське шале / Alpine Modern & Luxury Rustic",
+    styleEn: "Modern Alpine Chalet / Luxury Rustic",
+    clientUa: "MAAM Studio (Франція)",
+    clientEn: "MAAM Studio (France)",
+    descriptionUa: "Розкішний інтер'єр гірського шале у Французьких Альпах, де традиційна альпійська естетика поєднується з сучасним преміальним дизайном. Головний простір подвійної висоти повністю оздоблений натуральним брусом та амбарною дошкою, а його осередком є масивний двосторонній камін та двосвітня обідня зона з великим столом із темного масиву дерева. Особливого шарму інтер'єру надають виразні підвісні світильники з фактурними китицями, скляне огородження мезоніну та панорамний вид на альпійські пейзажі. Ванна кімната виконана у контрастному поєднанні білого мармуру Calacatta, радіусних фасадів із моріного темного дуба та класичного художнього паркету.",
+    descriptionEn: "A luxury mountain chalet interior located in the French Alps, seamlessly blending traditional alpine heritage with modern high-end design. The double-height open-plan living and dining area is wrapped in rich reclaimed wood paneling, anchored by a statement stone fireplace and a solid dark-wood dining set. Oversized woven tassel chandeliers create a striking sculptural focus, complemented by glass mezzanine railings and expansive views of the surrounding peaks. The ensuite bathroom pairs polished Calacatta marble walls with dark curved vanity cabinetry and traditional parquet flooring.",
+    mainImage: "/projects/Chalet_1.jpg",
     gallery: [
-      "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?q=80&w=1000&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1600585152220-90363fe7e115?q=80&w=1000&auto=format&fit=crop"
+      "/projects/Chalet_2.jpg",
+      "/projects/Chalet_3.jpg",
+      "/projects/Chalet_4.jpg",
+      "/projects/Chalet_5.jpg",
+      "/projects/Chalet_6.jpg",
     ]
   }
 ];
@@ -288,8 +308,8 @@ export default function Home() {
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-[#6e6c64] sm:text-base">
               {lang === "UA"
-                ? "Ми побудували модель взаємодії за зразком провідних світових студій (Decorilla): поетапне узгодження, швидкі ітерації, персональний кабінет та інтерактивні панорами."
-                : "Inspired by global platforms (Decorilla), our collaborative workflow ensures clarity, milestone approvals, live chat, and interactive VR tours."}
+                ? "Ми побудували модель взаємодії за зразком провідних світових студій: поетапне узгодження, швидкі ітерації, персональний кабінет та інтерактивні панорами."
+                : "Inspired by global platforms , our collaborative workflow ensures clarity, milestone approvals, live chat, and interactive VR tours."}
             </p>
           </div>
 
@@ -306,7 +326,7 @@ export default function Home() {
                   : "Upload plans (DWG/PDF), outline your aesthetic requirements, and receive a fixed transparent quote with tailored options."}
               </p>
               <div className="mt-6 border-t border-[#e4e0d5] pt-4 text-[11px] font-medium text-[#1c1b18]">
-                {lang === "UA" ? "✓ Затвердження кошторису за 24 години" : "✓ Estimate finalized within 24 hours"}
+                {lang === "UA" ? "✓ Затвердження кошторису" : "✓ Estimate finalized"}
               </div>
             </div>
 
@@ -334,11 +354,11 @@ export default function Home() {
               </h3>
               <p className="mt-3 text-xs leading-relaxed text-[#6e6c64]">
                 {lang === "UA"
-                  ? "Рендери ультрависокої роздільності (4K/8K), специфікація оздоблювальних матеріалів та готові пакети для будівельників."
-                  : "High-resolution 4K/8K presentation renders, material schedules, and contractor-ready architectural specifications."}
+                  ? "Рендери ультрависокої роздільності (4K), специфікація оздоблювальних матеріалів та готові пакети для будівельників."
+                  : "High-resolution 4K presentation renders, material schedules, and contractor-ready architectural specifications."}
               </p>
               <div className="mt-6 border-t border-[#e4e0d5] pt-4 text-[11px] font-medium text-[#1c1b18]">
-                {lang === "UA" ? "✓ Повна передача файлів та авторський нагляд" : "✓ Complete handover with asset storage"}
+                {lang === "UA" ? "✓ Повна передача файлів" : "✓ Complete file transfer"}
               </div>
             </div>
           </div>

@@ -19,7 +19,7 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata = {
-  title: "INTERIA STUDIO — 3D Architecture & Interior Visualization",
+  title: "Mara Design STUDIO — 3D Architecture & Interior Visualization",
   description:
     "Photorealistic 3D visualization and space design studio inspired by architectural restraint and warm livability.",
 };

@@ -58,7 +58,7 @@ export default function Footer() {
             >
               maradesigninterior@gmail.com
             </a>
-            <span>Kyiv, Ukraine · Remote Worldwide</span>
+            <span>Rivne, Ukraine · Remote Worldwide</span>
             <span className="text-[11px] text-[#8f8c82]">
               Mon — Fri, 10:00 — 19:00 (EET)
             </span>
