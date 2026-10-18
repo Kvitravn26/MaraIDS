@@ -23,7 +23,7 @@ const PROJECTS_DATA: ProjectItem[] = [
     id: "1",
     titleUa: "Апартаменти в ПАР",
     titleEn: "Apartments in South Africa",
-    category: "Interior",
+    category: "residential",
     categoryUa: "Дизайн інтер'єру",
     categoryEn: "Interior Design",
     image: "https://lh3.googleusercontent.com/d/15nLUpRboTs-jHjgpHleAhVbeb8efJ-5o",
