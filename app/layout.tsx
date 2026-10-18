@@ -7,7 +7,7 @@ import { AppProvider } from "@/context/AppContext";
 const cormorant = Cormorant_Garamond({
   weight: ["300", "400", "500"],
   style: ["normal", "italic"],
-  subsets: ["latin", "cyrillic"],
+  subsets: ["latin", "cyrillic-ext"],
   variable: "--font-serif",
   display: "swap",
 });

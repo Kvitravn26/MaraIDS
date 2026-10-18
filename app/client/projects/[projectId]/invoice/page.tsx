@@ -311,17 +311,17 @@ function ProjectInvoiceContent() {
     year: "numeric",
   });
 
-  const recipientFields: { field: keyof InvoiceRecipient; label: string; required: boolean }[] = [
-    { field: "name", label: invoiceCurrency === "UAH" ? "Прізвище Ім'я По-батькові" : "Name client / name", required: true },
-    ...(invoiceCurrency === "UAH"
-      ? [{ field: "region", label: "Область", required: false }]
-      : [{ field: "studio", label: "Studio", required: false }]),
-    { field: "country", label: invoiceCurrency === "UAH" ? "Країна" : "Country", required: true },
-    { field: "city", label: invoiceCurrency === "UAH" ? "Місто" : "City", required: true },
-    { field: "address", label: invoiceCurrency === "UAH" ? "Адреса" : "Address", required: true },
-    { field: "phone", label: invoiceCurrency === "UAH" ? "Телефон" : "Phone", required: true },
-    { field: "email", label: invoiceCurrency === "UAH" ? "Електронна пошта" : "E-mail", required: true },
-  ];
+ const recipientFields: { field: keyof InvoiceRecipient; label: string; required: boolean }[] = [
+  { field: "name", label: invoiceCurrency === "UAH" ? "Прізвище Ім'я По-батькові" : "Name client / name", required: true },
+  ...(invoiceCurrency === "UAH"
+    ? [{ field: "region" as keyof InvoiceRecipient, label: "Область", required: false }]
+    : [{ field: "studio" as keyof InvoiceRecipient, label: "Studio", required: false }]),
+  { field: "country", label: invoiceCurrency === "UAH" ? "Країна" : "Country", required: true },
+  { field: "city", label: invoiceCurrency === "UAH" ? "Місто" : "City", required: true },
+  { field: "address", label: invoiceCurrency === "UAH" ? "Адреса" : "Address", required: true },
+  { field: "phone", label: invoiceCurrency === "UAH" ? "Телефон" : "Phone", required: true },
+  { field: "email", label: invoiceCurrency === "UAH" ? "Електронна пошта" : "E-mail", required: true },
+];
 
   return (
     <main className="mx-auto max-w-5xl px-5 pb-24 pt-32 text-[#1c1b18] space-y-8 sm:px-8">
