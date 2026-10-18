@@ -7,13 +7,13 @@ import { AppProvider } from "@/context/AppContext";
 const cormorant = Cormorant_Garamond({
   weight: ["300", "400", "500"],
   style: ["normal", "italic"],
-  subsets: ["latin", "cyrillic-ext"],
+  subsets: ["latin",],
   variable: "--font-serif",
   display: "swap",
 });
 
 const jakarta = Plus_Jakarta_Sans({
-  subsets: ["latin", "cyrillic"],
+  subsets: ["latin",],
   variable: "--font-sans",
   display: "swap",
 });
