@@ -26,7 +26,7 @@ const PROJECTS_DATA: ProjectItem[] = [
     category: "interior",
     categoryUa: "Дизайн інтер'єру",
     categoryEn: "interior",
-    image: "https://lh3.googleusercontent.com/d/15nLUpRboTs-jHjgpHleAhVbeb8efJ-5o",,
+    image: "https://lh3.googleusercontent.com/d/15nLUpRboTs-jHjgpHleAhVbeb8efJ-5o",
     area: "80 m²",
     year: "2025",
   },
